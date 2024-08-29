@@ -1,0 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+.square {
+    width: 100px;
+    height: 100px;
+    background-color: #ff5722;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .number {
+    color: white;
+    font-size: 24px;
+  }
+  .search{
+    margin-left: 150px;
+    width: 570px;
+  }
