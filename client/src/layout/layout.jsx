@@ -5,7 +5,7 @@ import LeftSideBar from "../components/Header/leftSideBar";
 const Layout = () => {
     return (
         <div className="flex flex-1">
-            <div className="flex-none h-screen">
+            <div className="flex-none">
                 <LeftSideBar />
 
             </div>

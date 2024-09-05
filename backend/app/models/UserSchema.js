@@ -6,12 +6,13 @@ const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: { type: Number },
   photo: { type: String },
+  address:{type:String},
   role: {
     type: String,
     enum: ["user", "admin"],
     default: "user",
   },
-  gender: { type: String, enum: ["male", "female", "other"] },
+  gender: { type: String, enum: ["Nam", "Nữ", "Khác"] },
   bloodType: { type: String },
 });
 const UserModel = mongoose.model("User",UserSchema);

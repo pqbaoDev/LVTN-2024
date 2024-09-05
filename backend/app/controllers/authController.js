@@ -10,21 +10,21 @@ const generateToken =  user =>{
     );
 };
 const register = async (req, res) => {
-    const { email, password, name, role, photo, gender,employeeId } = req.body;
+    const { email, password, name, role, photo, gender,employeeId,address,phone } = req.body;
 
     try {
-        let user = null;
+        let use = null;
 
         // Kiểm tra người dùng đã tồn tại trong cơ sở dữ liệu
         if (role === 'user') {
-            user = await User.findOne({ email });
+            use = await User.findOne({ email });
         }
         else if(role == 'employee'){
-            user = await Employee.findOne({email});
+            use = await Employee.findOne({email});
         }
 
         // Nếu người dùng đã tồn tại, trả về lỗi
-        if (user) {
+        if (use) {
             return res.status(400).json({ message: 'Email hoặc người dùng đã tồn tại' });
         }
 
@@ -34,29 +34,32 @@ const register = async (req, res) => {
 
         // Tạo người dùng mới
         if(role === 'user'){
-            user = new User({
+            use = new User({
                 name,
                 email,
                 password: hashedPassword, // Sử dụng mật khẩu đã băm
                 photo,
+                address,
+                phone,
                 gender,
                 role
             });
         }
         if(role === 'employee'){
-            user = new Employee({
+            use = new Employee({
                 name,
                 email,
                 password: hashedPassword, // Sử dụng mật khẩu đã băm
                 photo,
                 gender,
-                employeeId,
+                phone,
+                employeeId:'1',
                 role
             });
         }
 
         // Lưu người dùng vào cơ sở dữ liệu
-        await user.save();
+        await use.save();
         res.status(201).json({ success: true, message: 'Đăng ký thành công' });
 
     } catch (error) {

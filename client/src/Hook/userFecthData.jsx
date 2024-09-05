@@ -10,7 +10,6 @@ const useFetchData = (url) => {
             setLoading(true);
             try {
                 const token = localStorage.getItem('token');
-                console.log('Token:', token);
 
                 const res = await fetch(url, {
                     headers: { Authorization: `Bearer ${token}` }
@@ -22,7 +21,7 @@ const useFetchData = (url) => {
                 }
 
                 const result = await res.json();
-                console.log('Phản hồi:', result);
+                
 
                 setData(result.data);
                 setError(null);

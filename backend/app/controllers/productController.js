@@ -21,7 +21,7 @@ const updateProduct = async(req, res)=>{
         if (!product) {
         return res.status(404).json({ error: 'Sản phẩm không tồn tại' });
         }
-        res.status(200).json(product);
+        res.status(200).json({data:product});
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
