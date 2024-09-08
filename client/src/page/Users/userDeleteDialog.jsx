@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import closeIcon from "../../assets/images/close.png"
 
 const UserDeleteDialog = ({ open, handleClose, userId }) => {
-  const { data:user, loading, error } = useFetchData(`${BASE_URL}/user/${userId}`);
+  const { data:user, loading, error } = useFetchData(userId ?`${BASE_URL}/user/${userId}`:null);
   const DeleteProfileHandle = async e =>{
     e.preventDefault();
     try {

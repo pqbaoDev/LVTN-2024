@@ -3,9 +3,10 @@ import { FaPlusCircle } from "react-icons/fa";
 import { useState } from "react";
 import menuDotsIcon from "../../assets/images/menu-dots.png";
 import Action from "../../components/Actions/Action";
-import UserAddDialog from "./UserAddDialog";
+import ProductAddDialog from "./productAddDialog";
+import FormatPrice from "../../utils/formatPrice";
 
-const UserTable = ({ users }) => {
+const ProductTable = ({ products }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
     const [openRowIndex, setOpenRowIndex] = useState(null);
@@ -13,9 +14,9 @@ const UserTable = ({ users }) => {
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = users.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
 
-    const totalPages = Math.ceil(users.length / itemsPerPage);
+    const totalPages = Math.ceil(products.length / itemsPerPage);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -45,11 +46,11 @@ const UserTable = ({ users }) => {
                     <thead className="text-xs uppercase border-b-2 border-b-slate-300">
                         <tr>
                             <th></th>
-                            <th scope="col" className="px-3 py-3">Họ Tên</th>
-                            <th scope="col" className="px-3 py-3">Giới tính</th>
-                            <th scope="col" className="px-3 py-3">SĐT</th>
-                            <th scope="col" className="px-3 py-3">Email</th>
-                            <th scope="col" className="px-3 py-3">Địa chỉ</th>
+                            <th scope="col" className="px-3 py-3">Tên sản phẩm</th>
+                            <th scope="col" className="px-3 py-3">Số lượng</th>
+                            <th scope="col" className="px-3 py-3">Giá</th>
+                            <th scope="col" className="px-3 py-3">Giảm giá</th>
+                            <th scope="col" className="px-3 py-3">Đánh giá</th>
                             <th scope="col" className="text-center">Thao tác</th>
                         </tr>
                     </thead>
@@ -60,10 +61,10 @@ const UserTable = ({ users }) => {
                                     <img src={item.photo} className="w-9 h-9 border-gray-400 border rounded-full" alt="" />
                                 </td>
                                 <td className="pr-3 py-4">{item.name}</td>
-                                <td className="pr-3 py-4">{item.gender}</td>
-                                <td className="pr-3 py-4">0{item.phone}</td>
-                                <td className="pr-3 py-4">{item.email}</td>
-                                <td className="pr-3 py-4">{item.address}</td>
+                                <td className="pr-3 py-4">{item.stock}</td>
+                                <td className="pr-3 py-4">{FormatPrice(item.price)}</td>
+                                <td className="pr-3 py-4">{item.discount}</td>
+                                <td className="pr-3 py-4">{item.rating}</td>
                                 <td className="relative" 
                                 
                                 >
@@ -99,7 +100,7 @@ const UserTable = ({ users }) => {
                     </button>
                 ))}
             </div>
-            <UserAddDialog
+            <ProductAddDialog
                 open={openAdd}
                 handleClose={handleCloseAdd}
                 size="lg"
@@ -113,4 +114,5 @@ const UserTable = ({ users }) => {
     );
 };
 
-export default UserTable;
+
+export default ProductTable;

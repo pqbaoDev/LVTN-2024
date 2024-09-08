@@ -34,29 +34,33 @@ const navLinks = [
 // Thành phần phụ cho các mục điều hướng
 // eslint-disable-next-line react/prop-types
 const NavItem = ({ path, display, src, gap, open }) => (
-    <li className="item-sideBar ">
-        <NavLink
-            to={path}
-            className={`text-l group relative flex items-center gap-x-4 cursor-pointer p-2 ${gap ? "mt-9" : "mt-2"}`}
-        >
-            <img src={src} className="w-4 h-4" alt={display} />
-            <span className={`${!open && 'hidden'} origin-left duration-300`}>
-                {display}
-            </span>
-        {!open && (
-            <div className={`absolute left-full rounded-md py-1 ml-6  w-20 flex justify-center 
+  <li className="item-sideBar ">
+    <NavLink
+      to={path}
+      className={`text-l group relative flex items-center gap-x-4 cursor-pointer p-2 ${
+        gap ? "mt-9" : "mt-2"
+      }`}
+    >
+      <img src={src} className="w-4 h-4" alt={display} />
+      <span className={`${!open && "hidden"} origin-left duration-300`}>
+        {display}
+      </span>
+      {!open && (
+        <div
+          className={`absolute left-full rounded-md py-1 ml-6  w-20 flex justify-center 
                 bg-indigo-100 text-indigo-800 text-sm z-10
                  invisible
                  opacity-20 -translate-x-3
                  transition-all
                  group-hover:visible
                  group-hover:opacity-100 group-hover:translate-x-0
-                `}>
-                {display}
-            </div>
-        )}
-        </NavLink>
-    </li>
+                `}
+        >
+          {display}
+        </div>
+      )}
+    </NavLink>
+  </li>
 );
 
 const LeftSideBar = () => {
@@ -78,44 +82,50 @@ const LeftSideBar = () => {
     };
 
     return (
-        <section className={` relative p-5 pt-8 duration-300 h-full bg-black text-white ${open ? 'w-72' : 'w-20'}`}>
-            <img
-                src={control}
-                className={`absolute cursor-pointer rounded-full -right-3 top-[325px] w-7 border-2 bg-white ${!open ? 'rotate-180' : ''}`}
-                onClick={() => setOpen(!open)}
-                alt="Chuyển đổi điều khiển"
-            />
-            <div className="mb-6">
-                {open ? (
-                    <img src={logo} alt="Logo" className="w-auto" />
-                ) : (
-                    <img src={miniLogo} alt="Logo nhỏ" className="w-12" />
-                )}
-            </div>
+      <section
+        className={` relative p-5 pt-8 duration-300 h-full bg-black text-white ${
+          open ? "w-72" : "w-20"
+        }`}
+      >
+        <img
+          src={control}
+          className={`absolute cursor-pointer rounded-full -right-3 top-[325px] w-7 border-2 bg-white ${
+            !open ? "rotate-180" : ""
+          }`}
+          onClick={() => setOpen(!open)}
+          alt="Chuyển đổi điều khiển"
+        />
+        <div className="mb-6">
+          {open ? (
+            <img src={logo} alt="Logo" className="w-auto" />
+          ) : (
+            <img src={miniLogo} alt="Logo nhỏ" className="w-12" />
+          )}
+        </div>
+        <hr />
+        <nav className="navigation  hidden md:block">
+          <ul className="py-2">
+            {navLinks.map((link, index) => (
+              <NavItem
+                key={index}
+                path={link.path}
+                display={link.display}
+                src={link.src}
+                gap={link.gap}
+                open={open}
+              />
+            ))}
             <hr />
-            <nav className="navigation  hidden md:block">
-                <ul className="py-2">
-                    {navLinks.map((link, index) => (
-                        <NavItem
-                            key={index}
-                            path={link.path}
-                            display={link.display}
-                            src={link.src}
-                            gap={link.gap}
-                            open={open}
-                        />
-                    ))}
-                    <hr />
-                    <li
-                        className="py-3 flex items-center gap-2 text-[16px] px-2 font-medium cursor-pointer"
-                        onClick={handleLogout}
-                    >
-                        <FaSignOutAlt className="text-gray-600" />
-                        Đăng xuất
-                    </li>
-                </ul>
-            </nav>
-        </section>
+            <li
+              className="py-3 flex items-center gap-2 text-[16px] px-2 font-medium cursor-pointer"
+              onClick={handleLogout}
+            >
+              <FaSignOutAlt className="text-gray-600" />
+              Đăng xuất
+            </li>
+          </ul>
+        </nav>
+      </section>
     );
 };
 

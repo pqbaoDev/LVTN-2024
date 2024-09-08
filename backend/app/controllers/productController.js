@@ -3,9 +3,16 @@ const { param } = require("../routes/product");
 
 const createProduct = async(req,res)=>{
     try {
-        const product = new Product(req.body);
-        await product.save();
-        res.status(201).json(product);
+        const {name,stock} = req.body;
+        const existingProduct = await Product.findOne({name});
+        if(existingProduct){
+            existingProduct.stock += stock;
+           const updateProduct = await existingProduct.save();
+           return res.status(200).json({success:true,data:updateProduct});
+        }
+        const newproduct = new Product();
+        await newproduct.save();
+        res.status(201).json({success:true,data:newproduct});
       } catch (error) {
         res.status(400).json({ error: error.message });
       }

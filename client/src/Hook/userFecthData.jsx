@@ -27,7 +27,7 @@ const useFetchData = (url) => {
                 setError(null);
             } catch (error) {
                 setError(error.message || 'Lỗi không xác định');
-                console.log('Lỗi Fetch:', error);
+                // console.log('Lỗi Fetch:', error);
             } finally {
                 setLoading(false);
             }

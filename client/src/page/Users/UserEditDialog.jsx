@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import closeIcon from "../../assets/images/close.png"
 
 const UserEditDialog = ({ open, handleClose, userId }) => {
-    const { data: user } = useGetProfile(`${BASE_URL}/user/${userId}`);
+    const { data: user } = useGetProfile(userId?`${BASE_URL}/user/${userId}`:null);
 
     const [selectedFile, setSelectedFile] = useState(null);
     const [formData, setFormData] = useState({

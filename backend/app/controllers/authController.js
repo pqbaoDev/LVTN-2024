@@ -1,30 +1,49 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/UserSchema');
-const Employee = require('../models/employeeSchema')
-const jwt = require("jsonwebtoken")
+const Employee = require('../models/employeeSchema');
+const Counter = require('../models/CounterSchema'); // Import mô hình Counter
+const jwt = require('jsonwebtoken');
 
-const generateToken =  user =>{
+// Hàm tạo token JWT
+const generateToken = user => {
     return jwt.sign(
-        {id:user._id, role: user.role},
-        process.env.JWT_SECRET_KEY,{ expiresIn:"15d",}
+        { id: user._id, role: user.role },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: '15d' }
     );
 };
+
+// Hàm để lấy giá trị ID mới
+const getNextSequenceValue = async (sequenceName) => {
+    try {
+        const sequenceDocument = await Counter.findByIdAndUpdate(
+            { _id: sequenceName },
+            { $inc: { sequence_value: 1 } },
+            { new: true, upsert: true } // Cập nhật và tạo mới nếu chưa có
+        );
+        return sequenceDocument.sequence_value;
+    } catch (error) {
+        console.error('Lỗi khi lấy giá trị tuần tự:', error);
+        throw error;
+    }
+};
+
+
 const register = async (req, res) => {
-    const { email, password, name, role, photo, gender,employeeId,address,phone } = req.body;
+    const { email, password, name, role, photo, gender, address, phone } = req.body;
 
     try {
-        let use = null;
+        let existingUser = null;
 
         // Kiểm tra người dùng đã tồn tại trong cơ sở dữ liệu
         if (role === 'user') {
-            use = await User.findOne({ email });
-        }
-        else if(role == 'employee'){
-            use = await Employee.findOne({email});
+            existingUser = await User.findOne({ email });
+        } else if (role === 'employee') {
+            existingUser = await Employee.findOne({ email });
         }
 
         // Nếu người dùng đã tồn tại, trả về lỗi
-        if (use) {
+        if (existingUser) {
             return res.status(400).json({ message: 'Email hoặc người dùng đã tồn tại' });
         }
 
@@ -32,9 +51,11 @@ const register = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        let newUser;
+
         // Tạo người dùng mới
-        if(role === 'user'){
-            use = new User({
+        if (role === 'user') {
+            newUser = new User({
                 name,
                 email,
                 password: hashedPassword, // Sử dụng mật khẩu đã băm
@@ -44,22 +65,23 @@ const register = async (req, res) => {
                 gender,
                 role
             });
-        }
-        if(role === 'employee'){
-            use = new Employee({
+        } else if (role === 'employee') {
+            const nextId = await getNextSequenceValue('employeeId');
+            newUser = new Employee({
                 name,
                 email,
                 password: hashedPassword, // Sử dụng mật khẩu đã băm
                 photo,
                 gender,
+                address,
                 phone,
-                employeeId:'1',
+                employeeId: `MS-${nextId}`,
                 role
             });
         }
 
         // Lưu người dùng vào cơ sở dữ liệu
-        await use.save();
+        await newUser.save();
         res.status(201).json({ success: true, message: 'Đăng ký thành công' });
 
     } catch (error) {
@@ -68,34 +90,42 @@ const register = async (req, res) => {
     }
 };
 
-const login = async(req,res)=>{
-    const{email} = req.body;
+const login = async (req, res) => {
+    const { email, password } = req.body;
+
     try {
         let user = null;
 
-        const users = await User.findOne({email});
-        const employee = await Employee.findOne({email});
-        if(users){
-            user= users;
-        } 
-        if(employee){
-            user=employee;
-        }
-        if(!user) return res.status(404).json({ message:"Tài khoản không tồn tại"});
-
-        const isPasswordMacth = await bcrypt.compare(req.body.password,user.password);
-        if(!isPasswordMacth){
-            return res.status(400).json({status:false,message:'Invalid credentails'});
+        // Tìm người dùng
+        const userInDb = await User.findOne({ email });
+        const employeeInDb = await Employee.findOne({ email });
+        if (userInDb) {
+            user = userInDb;
+        } else if (employeeInDb) {
+            user = employeeInDb;
         }
 
+        // Nếu không tìm thấy người dùng, trả về lỗi
+        if (!user) {
+            return res.status(404).json({ message: "Tài khoản không tồn tại" });
+        }
+
+        // Kiểm tra mật khẩu
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        if (!isPasswordMatch) {
+            return res.status(400).json({ status: false, message: 'Invalid credentials' });
+        }
+
+        // Tạo token
         const token = generateToken(user);
 
-        const {password, role, appointments, ...rest} = user._doc;
-        res.status(200).json({status:true,message:'Đăng nhập thành công', token,data:{...rest},role});
+        // Trả về thông tin người dùng
+        const { password, ...rest } = user._doc;
+        res.status(200).json({ status: true, message: 'Đăng nhập thành công', token, data: { ...rest } });
     } catch (error) {
-
-         return res.status(500).json({status:false,message:'Đăng nhập thất bại'});
+        console.error('Lỗi đăng nhập:', error);
+        res.status(500).json({ status: false, message: 'Đăng nhập thất bại' });
     }
-}
+};
 
-module.exports = {register,login};
+module.exports = { register, login };

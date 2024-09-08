@@ -7,7 +7,9 @@ const Auth = require("./app/routes/auth");
 const User = require("./app/routes/user");
 const Product = require("./app/routes/product")
 const Employee = require("./app/routes/employee");
-const Order = require("./app/routes/order")
+const Order = require("./app/routes/order");
+const Category = require("./app/routes/category");
+const ManuFacture = require("./app/routes/manuFacture");
 
 
 const app = express();
@@ -22,6 +24,8 @@ app.use("/api/user",User);
 app.use("/api/product",Product);
 app.use("/api/employee",Employee);
 app.use("/api/order",Order);
+app.use("/api/category",Category);
+app.use("/api/manuFacture",ManuFacture)
 
 
 

@@ -10,6 +10,7 @@ const Action = ({ id, type }) => { // Thêm prop type để phân biệt loại 
     const [openEdit, setOpenEdit] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
+    
 
     const handleOpenEdit = (id) => {
         setSelectedId(id);
@@ -36,6 +37,7 @@ const Action = ({ id, type }) => { // Thêm prop type để phân biệt loại 
             <ul className="flex flex-col space-y-2">
                 <li 
                     onClick={() => handleOpenEdit(id)} 
+                    // onClick ={()=>setOpen(fasle)}
                     className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
                 >
                     <FaEdit className="text-blue-500" />
