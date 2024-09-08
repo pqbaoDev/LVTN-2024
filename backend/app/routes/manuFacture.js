@@ -1,8 +1,8 @@
 const express = require('express');
-const {createManufacture} = require('../controllers/manuFactureController');
+const {createManufacture, getAll} = require('../controllers/manuFactureController');
 
 const router = express.Router();
 
-router.post('/',createManufacture);
+router.post('/',createManufacture).get('/',getAll);
 
 module.exports = router;

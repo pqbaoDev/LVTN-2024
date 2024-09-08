@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
-const ManufactureSchema = new mongoose.Schema ({
-    name:{type: String,require:true},
+const ManuFactureSchema = new mongoose.Schema ({
+    name:{type: String,require:true,unique:true},
     photo:{type:String}
 })
-const ManufactureModel = mongoose.model("Manufacture",ManufactureSchema)
-module.exports = ManufactureModel;
+const ManuFactureModel = mongoose.model("ManuFacture",ManuFactureSchema)
+module.exports = ManuFactureModel;

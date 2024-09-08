@@ -91,12 +91,10 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-    const { email, password } = req.body;
+    const { email } = req.body;
 
     try {
         let user = null;
-
-        // Tìm người dùng
         const userInDb = await User.findOne({ email });
         const employeeInDb = await Employee.findOne({ email });
         if (userInDb) {
@@ -111,7 +109,7 @@ const login = async (req, res) => {
         }
 
         // Kiểm tra mật khẩu
-        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        const isPasswordMatch = await bcrypt.compare(req.body.password, user.password);
         if (!isPasswordMatch) {
             return res.status(400).json({ status: false, message: 'Invalid credentials' });
         }
@@ -120,10 +118,10 @@ const login = async (req, res) => {
         const token = generateToken(user);
 
         // Trả về thông tin người dùng
-        const { password, ...rest } = user._doc;
-        res.status(200).json({ status: true, message: 'Đăng nhập thành công', token, data: { ...rest } });
+        const { password,role, ...rest } = user._doc;
+        res.status(200).json({ status: true, message: 'Đăng nhập thành công', token, data: { ...rest },role });
     } catch (error) {
-        console.error('Lỗi đăng nhập:', error);
+        console.error('Lỗi đăng nhập phía server:', error);
         res.status(500).json({ status: false, message: 'Đăng nhập thất bại' });
     }
 };

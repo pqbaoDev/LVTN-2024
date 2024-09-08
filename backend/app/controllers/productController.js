@@ -1,16 +1,17 @@
 const Product = require("../models/ProductSchema");
-const { param } = require("../routes/product");
+const ManuFacture = require("../models/ManufactureSchema");
+const Category = require("../models/CategorySchema")
 
 const createProduct = async(req,res)=>{
     try {
-        const {name,stock} = req.body;
+        const {name,stock,price,manuFacture,category} = req.body;
         const existingProduct = await Product.findOne({name});
         if(existingProduct){
             existingProduct.stock += stock;
            const updateProduct = await existingProduct.save();
            return res.status(200).json({success:true,data:updateProduct});
         }
-        const newproduct = new Product();
+        const newproduct = new Product(req.body);
         await newproduct.save();
         res.status(201).json({success:true,data:newproduct});
       } catch (error) {
@@ -38,10 +39,17 @@ const getAllProduct = async(req,res)=>{
         const {query}=req.query;
         let products;
         if(query){
+            const manuFactures = await ManuFacture.find({name:{$regex:query,$options:'i'}});
+            const categorys = await Category.find({name:{$regex:query,$options:'i'}});
+
+            const manuFactureId = manuFactures.map(manuFacture=>manuFacture._id);
+            const categoryId = categorys.map(category=>category._id);
+
             products = await Product.find({
                 $or:[
                     { name: { $regex: query, $options: 'i' } },
-                    { category: { $regex: query, $options: 'i' } },
+                    { category: { $in:categoryId } },
+                    {manuFacture:{$in:manuFactureId}},
                     
                 ],
             });
@@ -51,7 +59,7 @@ const getAllProduct = async(req,res)=>{
         res.status(200).json({success:true,data:products});
     } catch (error) {
         console.error("Lỗi lấy danh sách sản",error)
-        res.status(400).json({
+        res.status(500).json({
             success:false,
             error: error.message
         })

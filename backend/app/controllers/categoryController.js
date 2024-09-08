@@ -22,8 +22,14 @@ const createCategory = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
   }
 };
-const getOne = async(req,res)=>{
+const getAll = async(req,res)=>{
     try {
+      const {query}=req.query;
+      let categorys;
+      if(query){
+        
+      }
+
         const id = req.params.id;
         const category = await Category.findById(id);
         res.status(200).json({success:true,data:category})
@@ -32,4 +38,4 @@ const getOne = async(req,res)=>{
     }
 }
 
-module.exports = { createCategory,getOne };
+module.exports = { createCategory,getAll };
