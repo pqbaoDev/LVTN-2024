@@ -24,7 +24,8 @@ const EmployeeAddDialog = ({open, handleClose})=>{
         address:'',
         photo: selectedFile,
         role:'employee',
-        gender:''
+        gender:'',
+        salary:'',
 
     });
     const navigate = useNavigate()
@@ -81,7 +82,7 @@ const EmployeeAddDialog = ({open, handleClose})=>{
       }}
       className="mx-auto max-w-lg border border-gray-300 shadow-2xl bg-white"
     >
-    <form action="" onSubmit={submitHandler}>
+    <form action="" onSubmit={submitHandler} >
 
       <DialogHeader className="  text-white justify-center text-[16px] bg-blue-400 rounded-t-lg">
                 <h3 className="text-headingColor text-[22px] leading-9 font-bold ">Thêm 
@@ -155,18 +156,6 @@ const EmployeeAddDialog = ({open, handleClose})=>{
                         id="" required/>
                     </div>
                     <div className="flex items-center justify-between">
-                        {/* <label htmlFor=""
-                            className="text-headingColor font-bold text-[16px] leading-7">
-                            Are you a:
-                            <select name="role" 
-                            className="text-textColor font-semibold text-[15px] leading-7 px-4 py-3 focus:outline-one"
-                            id=""
-                            value={formData.role}
-                        onChange={handleInputChange}>
-                                <option value="patient">Patient</option>
-                                <option value="doctor">Doctor</option>
-                            </select>
-                        </label> */}
                         <label htmlFor=""
                             className="text-headingColor font-bold text-[16px] leading-7">
                             Giới tính:
@@ -183,6 +172,33 @@ const EmployeeAddDialog = ({open, handleClose})=>{
                             </select>
                         </label>
                     </div>
+                    <div className="grid grid-cols-2 gap-2 mt-3">
+                        <label htmlFor="">
+                            <p className="form__label">Chức vụ:</p>
+                            <input 
+                                type="text" 
+                                name="subsidy" 
+                                placeholder="Chức vụ" 
+                                value={formData.subsidy}
+                                onChange={handleInputChange}
+                                id='' required
+                                className="form__input" 
+                            />
+                        </label>
+                        <label htmlFor="">
+                            <p className="form__label">Lương:</p>
+                            <input 
+                                type="number" 
+                                name="salary" 
+                                placeholder="Nhập Lương" 
+                                value={formData.salary}
+                                onChange={handleInputChange}
+                                id='' required
+                                className="form__input" 
+                            />
+                        </label>
+                    </div>
+
                     
                     
             </div>

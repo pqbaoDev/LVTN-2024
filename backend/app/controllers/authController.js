@@ -111,7 +111,7 @@ const login = async (req, res) => {
         // Kiểm tra mật khẩu
         const isPasswordMatch = await bcrypt.compare(req.body.password, user.password);
         if (!isPasswordMatch) {
-            return res.status(400).json({ status: false, message: 'Invalid credentials' });
+            return res.status(400).json({ status: false, message: 'Mật khẩu không đúng' });
         }
 
         // Tạo token

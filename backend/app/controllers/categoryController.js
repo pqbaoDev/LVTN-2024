@@ -27,12 +27,11 @@ const getAll = async(req,res)=>{
       const {query}=req.query;
       let categorys;
       if(query){
-        
+        categorys = await Category.find({ name: { $regex: query, $options: 'i' } })
+      }else{
+        categorys = await Category.find();
       }
-
-        const id = req.params.id;
-        const category = await Category.findById(id);
-        res.status(200).json({success:true,data:category})
+        res.status(200).json({success:true,data:categorys})
     } catch (error) {
         
     }

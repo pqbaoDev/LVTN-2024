@@ -61,7 +61,7 @@ const UserTable = ({ users }) => {
                                 </td>
                                 <td className="pr-3 py-4">{item.name}</td>
                                 <td className="pr-3 py-4">{item.gender}</td>
-                                <td className="pr-3 py-4">0{item.phone}</td>
+                                <td className="pr-3 py-4">{item.phone}</td>
                                 <td className="pr-3 py-4">{item.email}</td>
                                 <td className="pr-3 py-4">{item.address}</td>
                                 <td className="relative" 

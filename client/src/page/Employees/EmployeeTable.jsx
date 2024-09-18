@@ -4,9 +4,10 @@ import { FaPlusCircle } from "react-icons/fa";
 import Action from "../../components/Actions/Action";
 import menuDotsIcon from "../../assets/images/menu-dots.png";
 import EmployeeAddDialog from "./EmployeeAddDialog";
+import FormatPrice from "../../utils/formatPrice";
 
 const EmployeeTable = ({ employees }) => {
-  console.log("check", employees);
+  // console.log("check", employees);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [openRowIndex, setOpenRowIndex] = useState(null);
@@ -63,6 +64,15 @@ const EmployeeTable = ({ employees }) => {
               <th scope="col" className="px-3 py-3">
                 Địa chỉ
               </th>
+              <th scope="col" className="px-3 py-3">
+                Chức vụ
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Lương
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Phụ cấp
+              </th>
               <th scope="col" className="text-center">
                 Thao tác
               </th>
@@ -80,9 +90,12 @@ const EmployeeTable = ({ employees }) => {
                 </td>
                 <td className="pr-3 py-4">{item.name}</td>
                 <td className="pr-3 py-4">{item.gender}</td>
-                <td className="pr-3 py-4">0{item.phone}</td>
+                <td className="pr-3 py-4">{item.phone}</td>
                 <td className="pr-3 py-4">{item.email}</td>
                 <td className="pr-3 py-4">{item.address}</td>
+                <td className="pr-3 py-4">{item.position}</td>
+                <td className="pr-3 py-4">{FormatPrice(item.salary)}</td>
+                <td className="pr-3 py-4">{item.subsidy}</td>
                 <td className="relative">
                   <img
                     src={menuDotsIcon}

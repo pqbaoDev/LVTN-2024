@@ -29,42 +29,64 @@ const updateProduct = async(req, res)=>{
         if (!product) {
         return res.status(404).json({ error: 'Sản phẩm không tồn tại' });
         }
-        res.status(200).json({data:product});
+        res.status(200).json({success:true,message:"Cập nhật thành công",data:product});
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 }
-const getAllProduct = async(req,res)=>{
+const getAllProduct = async (req, res) => {
     try {
-        const {query}=req.query;
+        const { manuFactureName, query, categoryName } = req.query;
+
+        // Khởi tạo mảng lưu trữ ID
+        let manuFactureIds = [];
+        let categoryIds = [];
+
+        // Nếu có tham số manuFactureName, thực hiện tìm kiếm và lấy ID
+        if (manuFactureName ) {
+            const manuFactures = await ManuFacture.find({ name: { $regex: manuFactureName, $options: 'i' } });
+            manuFactureIds = manuFactures.map(mf => mf._id);  // Lấy danh sách ID
+        }
+
+        // Nếu có tham số categoryName, thực hiện tìm kiếm và lấy ID
+        if (categoryName ) {
+            const categories = await Category.find({ name: { $regex: categoryName, $options: 'i' } });
+            categoryIds = categories.map(cat => cat._id);  // Lấy danh sách ID
+        }
+
+        // Xây dựng truy vấn tìm kiếm sản phẩm
+        const queryObject = {};
+
+        // Thêm điều kiện vào truy vấn nếu có tham số query
+        if (query ) {
+            queryObject.name = { $regex: query, $options: 'i' };
+        }
+        if (categoryIds.length > 0) {
+            queryObject.category = { $in: categoryIds };
+        }
+        if (manuFactureIds.length > 0) {
+            queryObject.manuFacture = { $in: manuFactureIds };
+        }
+
+        // Tìm các sản phẩm dựa trên truy vấn đã xây dựng
         let products;
-        if(query){
-            const manuFactures = await ManuFacture.find({name:{$regex:query,$options:'i'}});
-            const categorys = await Category.find({name:{$regex:query,$options:'i'}});
-
-            const manuFactureId = manuFactures.map(manuFacture=>manuFacture._id);
-            const categoryId = categorys.map(category=>category._id);
-
-            products = await Product.find({
-                $or:[
-                    { name: { $regex: query, $options: 'i' } },
-                    { category: { $in:categoryId } },
-                    {manuFacture:{$in:manuFactureId}},
-                    
-                ],
-            });
-        }else{
+        if (Object.keys(queryObject).length > 0) {
+            products = await Product.find(queryObject);
+        } else {
             products = await Product.find();
         }
-        res.status(200).json({success:true,data:products});
+
+        res.status(200).json({ success: true, data: products });
     } catch (error) {
-        console.error("Lỗi lấy danh sách sản",error)
+        console.error("Lỗi khi lấy danh sách sản phẩm:", error.message);
         res.status(500).json({
-            success:false,
-            error: error.message
-        })
+            success: false,
+            error: "Đã xảy ra lỗi khi lấy danh sách sản phẩm."
+        });
     }
 }
+
+
 const getSingleProduct = async(req, res)=>{
     try {
         const product = await Product.findById(req.params.id);

@@ -40,7 +40,7 @@ const getOrder = async (req, res) => {
         const { query } = req.query;
         let orders;
 
-        console.log('Query:', query);
+        // console.log('Query:', query);
 
         if (query) {
             // Tìm tất cả người dùng và sản phẩm phù hợp với truy vấn

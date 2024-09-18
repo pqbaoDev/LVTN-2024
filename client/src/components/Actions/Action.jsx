@@ -5,6 +5,8 @@ import UserEditDialog from "../../page/Users/UserEditDialog";
 import UserDeleteDialog from "../../page/Users/userDeleteDialog";
 import EmployeeDeleteDialog from "../../page/Employees/EmployeeDelete";
 import EmployeeEdit from "../../page/Employees/EmployeeEdit";
+import ProductEditDialog from "../../page/Products/productEditDialog";
+import ProductDeleteDialog from "../../page/Products/productDeleteDialog";
 
 const Action = ({ id, type }) => { // Thêm prop type để phân biệt loại đối tượng (user/employee)
     const [openEdit, setOpenEdit] = useState(false);
@@ -105,6 +107,32 @@ const Action = ({ id, type }) => { // Thêm prop type để phân biệt loại 
                     employeeId={selectedId}
                     open={openEdit}
                     handleClose={handleClose}
+                    size='lg'
+                    position='center'
+                    animate={{
+                        mount: { x: 1, y: 0 },
+                        unmount: { x: 0.9, y: -100 }
+                    }}
+                />
+            )}
+            {type === 'product' && (
+                <ProductEditDialog
+                    productId={selectedId}
+                    open={openEdit}
+                    handleClose={handleClose}
+                    size='lg'
+                    position='center'
+                    animate={{
+                        mount: { x: 1, y: 0 },
+                        unmount: { x: 0.9, y: -100 }
+                    }}
+                />
+            )}
+            {type === 'product' && (
+                <ProductDeleteDialog
+                    productId={selectedId}
+                    open={openDelete}
+                    handleClose={handleCloseDelete}
                     size='lg'
                     position='center'
                     animate={{

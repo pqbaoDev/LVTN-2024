@@ -95,7 +95,7 @@ const UserEditDialog = ({ open, handleClose, userId }) => {
                 mount: { scale: 1, y: 0 },
                 unmount: { scale: 0.9, y: -100 },
             }}
-            className="mx-auto max-w-lg border border-gray-300 shadow-2xl bg-white "
+            className="mx-auto max-w-lg h-screen border border-gray-300 shadow-2xl bg-white "
             
         >
             <form onSubmit={submitHandler}>
@@ -110,7 +110,7 @@ const UserEditDialog = ({ open, handleClose, userId }) => {
                     </div>
                 </DialogHeader>
                 <DialogBody className="p-4">
-                    <div className="mt-10">
+                    <div className="mt-5">
                         
                     <div className="mb-5 items-center gap-3 flex">
                             
@@ -137,10 +137,11 @@ const UserEditDialog = ({ open, handleClose, userId }) => {
                             </div>
                         </div>
                         <div className="mb-5 flex items-end justify-between">
-                            <label htmlFor="" className="text-headingColor font-bold text-[16px] leading-7 w-1/3">Họ tên:</label>
+                            <label htmlFor="username" className="text-headingColor font-bold text-[16px] leading-7 w-1/3">Họ tên:</label>
                             <input 
                                 type="text" 
                                 name="name" 
+                                id='username'
                                 placeholder="Họ và tên!" 
                                 value={formData.name}
                                 onChange={handleInputChange}
@@ -149,10 +150,11 @@ const UserEditDialog = ({ open, handleClose, userId }) => {
                             />
                         </div>
                         <div className="mb-5 flex items-end justify-between">
-                            <label htmlFor="" className="text-headingColor font-bold text-[16px] leading-7 w-1/3">Email:</label>
+                            <label htmlFor="useremail" className="text-headingColor font-bold text-[16px] leading-7 w-1/3">Email:</label>
                             <input 
                                 type="email" 
                                 name="email" 
+                                id='useremail'
                                 placeholder="Nhập email" 
                                 value={formData.email}
                                 onChange={handleInputChange}
@@ -161,10 +163,11 @@ const UserEditDialog = ({ open, handleClose, userId }) => {
                             />
                         </div>
                         <div className="mb-5 flex items-end justify-between">
-                            <label htmlFor="" className="text-headingColor font-bold text-[16px] leading-7 w-1/3">SĐT:</label>
+                            <label htmlFor="userphone" className="text-headingColor font-bold text-[16px] leading-7 w-1/3">SĐT:</label>
                             <input 
                                 type="number" 
                                 name="phone" 
+                                id='userphone'
                                 placeholder="Nhập SĐT" 
                                 value={formData.phone}
                                 onChange={handleInputChange}
@@ -172,10 +175,23 @@ const UserEditDialog = ({ open, handleClose, userId }) => {
                             />
                         </div>
                         <div className="mb-5 flex items-end justify-between">
-                            <label htmlFor="" className="text-headingColor font-bold text-[16px] leading-7 w-1/3">Mật khẩu:</label>
+                            <label htmlFor="useraddress" className="text-headingColor font-bold text-[16px] leading-7 w-1/3">Địa chỉ:</label>
+                            <input 
+                                type="text" 
+                                name="address" 
+                                id='useraddress'
+                                placeholder="Nhập địa chỉ" 
+                                value={formData.address}
+                                onChange={handleInputChange}
+                                className="w-full pr-4 py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none placeholder:text-textColor cursor-pointer" 
+                            />
+                        </div>
+                        <div className="mb-5 flex items-end justify-between">
+                            <label htmlFor="userpassword" className="text-headingColor font-bold text-[16px] leading-7 w-1/3">Mật khẩu:</label>
                             <input 
                                 type="password" 
                                 name="password" 
+                                id='userpassword'
                                 placeholder="Password" 
                                 value={formData.password}
                                 onChange={handleInputChange}
@@ -184,10 +200,11 @@ const UserEditDialog = ({ open, handleClose, userId }) => {
                         </div>
                         
                         <div className="mb-5 flex items-center justify-between">
-                            <label htmlFor="" className="text-headingColor font-bold text-[16px] leading-7">
+                            <label htmlFor="usergender" className="text-headingColor font-bold text-[16px] leading-7">
                                 Giới tính:
                                 <select 
                                     name="gender" 
+                                    id='usergender'
                                     className="text-textColor font-semibold text-[15px] leading-7 px-4 py-3 focus:outline-none"
                                     value={formData.gender}
                                     onChange={handleInputChange}

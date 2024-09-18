@@ -6,83 +6,102 @@ import {
     DialogFooter
 } from "@material-tailwind/react";
 import closeIcon from "../../assets/images/close.png";
-import HashLoader from 'react-spinners/HashLoader';
 import { toast } from "react-toastify";
-import { BASE_URL } from "../../../config";
-import { useState } from "react";
+import { BASE_URL, token } from "../../../config";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useGetCategory from "../../Hook/userFecthData.jsx";
+import useGetFile from "../../Hook/userFecthData.jsx";
 import uploadImageToCloudinary from "../../utils/uploadCloudinary";
+import Loading from "../../components/Loader/Loading";
+import Error from "../../components/Error/Error";
 
-const ProductAddDialog = ({ open, handleClose }) => {
-    const { data: category = [] } = useGetCategory(`${BASE_URL}/category`);
-    const { data: manuFacture = [] } = useGetCategory(`${BASE_URL}/manuFacture`);
+
+const ProductEditDialog = ({ open, handleClose, productId }) => {
+    const { data: product, error: productError } = useGetFile(productId ? `${BASE_URL}/product/${productId}` : null);
+    const { data: category = [], error: categoryError } = useGetFile(`${BASE_URL}/category`);
+    const { data: manuFacture = [], error: manuFactureError } = useGetFile(`${BASE_URL}/manuFacture`);
 
     const [selectedFile, setSelectedFile] = useState(null);
-    const [previewURL, setPreviewURL] = useState("");
-    const [categoryId, setCategoryId] = useState("");
-    const [manuFactureId, setManuFactureId] = useState("");
     const [formData, setFormData] = useState({
         name: '',
         photo: '',
         discount: '',
         stock: '',
         price: '',
-        category: categoryId,
-        manuFacture: manuFactureId,
-        rating: '',
+        category: '',
+        manuFacture: '',
         description: '',
     });
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [submitLoading, setSubmitLoading] = useState(false);
+
+    useEffect(() => {
+        if (product) {
+            setFormData({
+                name: product.name || '',
+                discount: product.discount || '',
+                stock: product.stock || '',
+                photo: product.photo || '',
+                category: product.category || '',
+                manuFacture: product.manuFacture || '',
+                price: product.price || '',
+                description: product.description || '',
+            });
+        }
+    }, [product]);
 
     const handleInputChange = e => {
-        setFormData(prevData => ({
-            ...prevData,
-            [e.target.name]: e.target.value
-        }));
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleFileInputChange = async (event) => {
         const file = event.target.files[0];
-        const data = await uploadImageToCloudinary(file);
-        setPreviewURL(data.url);
-        setSelectedFile(data.url);
-        setFormData(prevData => ({
-            ...prevData,
-            photo: data.url
-        }));
+        if (file) {
+            try {
+                const data = await uploadImageToCloudinary(file);
+                setSelectedFile(data.url);
+                setFormData({ ...formData, photo: data.url });
+            // eslint-disable-next-line no-unused-vars
+            } catch (error) {
+                toast.error("Error uploading image.");
+            }
+        }
     };
 
     const submitHandler = async (event) => {
         event.preventDefault();
-        setLoading(true);
+        setSubmitLoading(true);
         try {
-            const response = await fetch(`${BASE_URL}/product`, {
-                method: 'POST',
+            const res = await fetch(`${BASE_URL}/product/${product._id}`, {
+                method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({
-                    ...formData,
-                    
-                })
+                body: JSON.stringify(formData),
             });
-            const { message } = await response.json();
+            const { message } = await res.json();
 
-            if (!response.ok) {
+            if (!res.ok) {
                 throw new Error(message);
             }
-
-            toast.success(message);
             navigate('/product');
             handleClose();
+            toast.success(message);
         } catch (error) {
             toast.error(error.message);
         } finally {
-            setLoading(false);
+            setSubmitLoading(false);
         }
     };
+
+    if (productError || categoryError || manuFactureError) {
+        return <Error message="Error loading data." />;
+    }
+
+    if (!product && submitLoading) {
+        return <Loading />;
+    }
 
     return (
         <Dialog
@@ -98,7 +117,7 @@ const ProductAddDialog = ({ open, handleClose }) => {
             <form onSubmit={submitHandler}>
                 <DialogHeader className="text-white justify-center text-[16px] bg-blue-400 rounded-t-lg">
                     <h3 className="text-headingColor text-[22px] leading-9 font-bold">
-                        Thêm <span className="text-primaryColor">Sản phẩm</span>
+                        Chỉnh sửa <span className="text-primaryColor">Sản phẩm</span>
                     </h3>
                     <div className="absolute top-2 right-2">
                         <img src={closeIcon} onClick={handleClose} className='w-5 h-5 cursor-pointer' alt="Close" />
@@ -110,7 +129,7 @@ const ProductAddDialog = ({ open, handleClose }) => {
                             <div className="mb-5 items-center gap-3 flex">
                                 {selectedFile && (
                                     <figure className="w-[60px] h-[60px] rounded-full border-2 border-solid border-primaryColor flex items-center justify-center">
-                                        <img src={previewURL} alt="Preview" className="w-full rounded-full" />
+                                        <img src={formData.photo} alt="Preview" className="w-full rounded-full" />
                                     </figure>
                                 )}
                                 <div className="relative w-[130px] h-[50px]">
@@ -174,18 +193,15 @@ const ProductAddDialog = ({ open, handleClose }) => {
                                     required
                                 />
                             </div>
-                            <div className="mb-5">
+                            <div>
                                 <div className="grid grid-cols-2 gap-5 mb-[30px]">
                                     <div>
                                         <p className="form__label">Danh mục:</p>
                                         <select
                                             name="category"
                                             className="form__input py-3.5"
-                                            value={categoryId}
-                                            onChange={e => {
-                                                setCategoryId(e.target.value);
-                                                handleInputChange(e);
-                                            }}
+                                            value={formData.category}
+                                            onChange={handleInputChange}
                                         >
                                             <option value="">Chọn danh mục</option>
                                             {category.map(item => (
@@ -200,11 +216,8 @@ const ProductAddDialog = ({ open, handleClose }) => {
                                         <select
                                             name="manuFacture"
                                             className="form__input py-3.5"
-                                            value={manuFactureId}
-                                            onChange={e => {
-                                                setManuFactureId(e.target.value);
-                                                handleInputChange(e);
-                                            }}
+                                            value={formData.manuFacture}
+                                            onChange={handleInputChange}
                                         >
                                             <option value="">Chọn thương hiệu</option>
                                             {manuFacture.map(item => (
@@ -220,19 +233,19 @@ const ProductAddDialog = ({ open, handleClose }) => {
                     </div>
                 </DialogBody>
                 <DialogFooter>
-                    <div className="m-0">
-                        <button
-                            disabled={loading}
-                            type="submit"
+                    <div >
+                        <button 
+                            disabled={submitLoading}
+                            type="submit" 
                             className="w-full bg-primaryColor text-white text-[18px] leading-[30px] rounded-lg px-4 py-3"
                         >
-                            {loading ? <HashLoader size={35} color="#ffffff" /> : 'Thêm'}
+                            {submitLoading ? <Loading size={25} color="#ffffff" /> : 'Cập nhật'}
                         </button>
                     </div>
                 </DialogFooter>
             </form>
         </Dialog>
     );
-};
+}
 
-export default ProductAddDialog;
+export default ProductEditDialog;

@@ -27,6 +27,9 @@ const EmployeeEdit = ({ open, handleClose, employeeId }) => {
     photo: null,
     gender: "",
     address: "",
+    position:"",
+    salary:"",
+    subsidy:"",
   });
   const { data: employee } = useGetProfile(
     employeeId ?
@@ -44,6 +47,9 @@ const EmployeeEdit = ({ open, handleClose, employeeId }) => {
         photo: employee.photo || "",
         gender: employee.gender || "",
         address: employee.address || "",
+        position:employee.position || "",
+        salary:employee.salary || "",
+        subsidy:employee.subsidy || "",
       });
     }
   }, [employee]);
@@ -229,6 +235,32 @@ const EmployeeEdit = ({ open, handleClose, employeeId }) => {
                 </select>
               </label>
             </div>
+            <div className="grid grid-cols-2 gap-2 mt-3">
+                        <label htmlFor="">
+                            <p className="form__label">Chức vụ:</p>
+                            <input 
+                                type="text" 
+                                name="position" 
+                                placeholder="Chức vụ" 
+                                value={formData.position}
+                                onChange={handleInputChange}
+                                id='' required
+                                className="form__input" 
+                            />
+                        </label>
+                        <label htmlFor="">
+                            <p className="form__label">Lương:</p>
+                            <input 
+                                type="number" 
+                                name="salary" 
+                                placeholder="Nhập Lương" 
+                                value={formData.salary}
+                                onChange={handleInputChange}
+                                id='' required
+                                className="form__input" 
+                            />
+                        </label>
+                    </div>
           </div>
         </DialogBody>
         <DialogFooter>

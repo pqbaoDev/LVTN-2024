@@ -1,16 +1,13 @@
 /* eslint-disable react/prop-types */
-import { FaPlusCircle } from "react-icons/fa";
 import { useState } from "react";
 import menuDotsIcon from "../../assets/images/menu-dots.png";
 import Action from "../../components/Actions/Action";
-import ProductAddDialog from "./productAddDialog";
 import FormatPrice from "../../utils/formatPrice";
 
 const ProductTable = ({ products }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [openRowIndex, setOpenRowIndex] = useState(null);
-  const [openAdd, setOpenAdd] = useState(false);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -26,12 +23,11 @@ const ProductTable = ({ products }) => {
     setOpenRowIndex((prevIndex) => (prevIndex === index ? null : index));
   };
 
-  const handleOpenAdd = () => setOpenAdd(true);
-  const handleCloseAdd = () => setOpenAdd(false);
+  
 
   return (
     <>
-      <div className="flex justify-between">
+      {/* <div className="flex justify-between">
         <div className="ml-1 mb-3">
           <button
             onClick={handleOpenAdd}
@@ -60,7 +56,7 @@ const ProductTable = ({ products }) => {
             <option value="Apple">Apple</option>
           </select>
         </div>
-      </div>
+      </div> */}
       <div className="mx-5">
         <table className="w-full text-sm  text-center border-2 border-slate-300">
           <thead className="text-xs uppercase border-b-2 border-b-slate-300">
@@ -84,9 +80,7 @@ const ProductTable = ({ products }) => {
               <th scope="col" className="px-3 py-3">
                 Giảm giá
               </th>
-              <th scope="col" className="px-3 py-3">
-                Đánh giá
-              </th>
+              
               <th scope="col" className="text-center">
                 Thao tác
               </th>
@@ -108,11 +102,11 @@ const ProductTable = ({ products }) => {
                 <td className="pr-3 py-4">{item.category.name}</td>
                 <td className="pr-3 py-4">{item.manuFacture.name}</td>
                 <td className="pr-3 py-4">{item.discount}</td>
-                <td className="pr-3 py-4">{item.rating}</td>
+                
                 <td className="relative">
                   {openRowIndex === item._id && (
                     <div className="absolute right-0 top-full mt-2 w-48 z-10 bg-white shadow-lg rounded-lg">
-                      <Action id={item._id} type={"user"} />
+                      <Action id={item._id} type={"product"} />
                     </div>
                   )}
                   <img
@@ -142,16 +136,7 @@ const ProductTable = ({ products }) => {
           </button>
         ))}
       </div>
-      <ProductAddDialog
-        open={openAdd}
-        handleClose={handleCloseAdd}
-        size="lg"
-        position="center"
-        animate={{
-          mount: { scale: 1, y: 0 },
-          unmount: { scale: 0.9, y: -100 },
-        }}
-      />
+      
     </>
   );
 };

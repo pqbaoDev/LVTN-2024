@@ -9,7 +9,7 @@ const ProductSchema = new mongoose.Schema(
     category: { type: mongoose.Schema.Types.ObjectId,required:true,index:true,ref:'Category' },
     stock: { type: Number, default: 1, min: 0 },
     photo: [String],
-    manuFacture:{type:mongoose.Schema.Types.ObjectId,required:true,index:true,ref:'ManuFacture'},
+    manuFacture:{ type: mongoose.Schema.Types.ObjectId,required:true,index:true,ref:'ManuFacture'},
     tags: [String],
     discount: { type: Number, min: 0, max: 100 },
     rating: { type: Number, min: 0, max: 5 },

@@ -110,5 +110,4 @@ table tr:nth-child(even){
   }
   .bg-black{
     background-color: rgba(0,0,0,0.9) !important;
-    height:100vh;
   }
