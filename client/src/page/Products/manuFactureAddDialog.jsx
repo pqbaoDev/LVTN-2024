@@ -7,7 +7,7 @@ import { BASE_URL } from "../../../config";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const CategoryAddDialog = ({ open, handleClose }) => {
+const ManuFactureAddDialog = ({ open, handleClose }) => {
     const [formData, setFormData] = useState({ name: '' });
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -23,7 +23,7 @@ const CategoryAddDialog = ({ open, handleClose }) => {
         event.preventDefault();
         setLoading(true);
         try {
-            const response = await fetch(`${BASE_URL}/category`, {
+            const response = await fetch(`${BASE_URL}/manufacture`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -62,7 +62,7 @@ const CategoryAddDialog = ({ open, handleClose }) => {
             <form onSubmit={submitHandler}>
                 <DialogHeader className="text-white justify-center text-[16px] bg-blue-400 rounded-t-lg">
                     <h3 className="text-headingColor text-[22px] leading-9 font-bold">
-                        Thêm <span className="text-primaryColor">Danh mục</span>
+                        Thêm <span className="text-primaryColor">Nhãn hàng</span>
                     </h3>
                     <div className="absolute top-2 right-2">
                         <img src={closeIcon} onClick={handleClose} className='w-5 h-5 cursor-pointer' alt="Close" />
@@ -74,7 +74,7 @@ const CategoryAddDialog = ({ open, handleClose }) => {
                             <input
                                 type="text"
                                 name="name"
-                                placeholder="Tên danh mục"
+                                placeholder="Tên nhãn hàng"
                                 value={formData.name}
                                 onChange={handleInputChange}
                                 className="w-full pr-4 py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none"
@@ -99,4 +99,4 @@ const CategoryAddDialog = ({ open, handleClose }) => {
     );
 }
 
-export default CategoryAddDialog;
+export default ManuFactureAddDialog;

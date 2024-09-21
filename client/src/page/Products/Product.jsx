@@ -9,11 +9,13 @@ import { useState, useEffect } from "react";
 import { FaPlusCircle } from "react-icons/fa";
 import ProductAddDialog from "./ProductAddDialog";
 import CategoryAddDialog from "./categoryAddDialog";
+import ManuFactureAddDialog from "./manuFactureAddDialog";
 
 const Product = () => {
     const [query, setQuery] = useState('');
     const [openProductAdd, setOpenProductAdd] = useState(false);
     const [openCategoryAdd, setOpenCategoryAdd] = useState(false);
+    const [openManuFactureAdd, setOpenManuFactureAdd] = useState(false);
     const [debounceQuery, setDebounceQuery] = useState('');
     const [debounceCategory, setDebounceCategory] = useState('');
     const [debounceManuFacture, setDebounceManuFacture] = useState('');
@@ -30,30 +32,19 @@ const Product = () => {
     const handleCloseProductAdd = () => setOpenProductAdd(false);
 
     const handleOpenCategoryAdd = () => setOpenCategoryAdd(true);
-    const handleCloseCategoryAdd = () => setOpenCategoryAdd(false);
+    const handleCloseCategoryAdd = () => setOpenCategoryAdd(false); 
+    const handleOpenManuFacture = () => setOpenManuFactureAdd(true);
+    const handleCloseManuFactureAdd = () => setOpenManuFactureAdd(false);
 
     // Debounce search query
     useEffect(() => {
         const timeout = setTimeout(() => {
             setDebounceQuery(query);
-        }, 500);
+            setDebounceCategory(category);
+            setDebounceManuFacture(manuFacture);
+        }, 900);
         return () => clearTimeout(timeout);
-    }, [query]);
-
-    // Debounce for category and manuFacture
-    useEffect(() => {
-        const timeoutCategory = setTimeout(() => {
-            setDebounceCategory(debounceCategory);
-        }, 500);
-        return () => clearTimeout(timeoutCategory);
-    }, [debounceCategory]);
-
-    useEffect(() => {
-        const timeoutManuFacture = setTimeout(() => {
-            setDebounceManuFacture(debounceManuFacture);
-        }, 500);
-        return () => clearTimeout(timeoutManuFacture);
-    }, [debounceManuFacture]);
+    }, [query,category,manuFacture]);
 
     return (
         <>
@@ -87,10 +78,15 @@ const Product = () => {
                         aria-label="Add Product"
                     >
                         <FaPlusCircle />
-                        <span className="font-semibold text-[18px]">Thêm Sản phẩm</span>
+                        <span className="font-semibold text-[18px]">Thêm</span>
                     </button>
                 </div>
                 <div className="flex justify-between items-center gap-8 mr-8 mt-5 pb-0">
+                    <div className="flex gap-2">
+
+                    <button onClick={handleOpenCategoryAdd}>
+                        <FaPlusCircle/>
+                    </button>
                     <select
                         name="category"
                         onChange={e => setDebounceCategory(e.target.value)}
@@ -102,13 +98,15 @@ const Product = () => {
                                 {item.name}
                             </option>
                         ))}
-                        <option
-                            onClick={handleOpenCategoryAdd}
-                            className="text-slate-300"
-                        >
-                            Thêm..
-                        </option>
+                        
                     </select>
+                    </div>
+                    <div className="flex gap-2" >
+                        <button onClick={handleOpenManuFacture}>
+                            <FaPlusCircle />
+                        </button>
+
+
                     <select
                         name="manuFacture"
                         onChange={e => setDebounceManuFacture(e.target.value)}
@@ -120,13 +118,9 @@ const Product = () => {
                                 {item.name}
                             </option>
                         ))}
-                        <option
-                            onClick={handleOpenProductAdd}
-                            className="text-slate-300"
-                        >
-                            Thêm..
-                        </option>
                     </select>
+                    </div>
+
                 </div>
             </div>
             <section className="p-0">
@@ -157,6 +151,16 @@ const Product = () => {
             <CategoryAddDialog
                 open={openCategoryAdd}
                 handleClose={handleCloseCategoryAdd}
+                size="lg"
+                position="center"
+                animate={{
+                    mount: { scale: 1, y: 0 },
+                    unmount: { scale: 0.9, y: -100 },
+                }}
+            />
+            <ManuFactureAddDialog
+                open={openManuFactureAdd}
+                handleClose={handleCloseManuFactureAdd}
                 size="lg"
                 position="center"
                 animate={{

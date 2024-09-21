@@ -2,39 +2,60 @@ const Order = require('../models/OrderSchema');
 const Product = require('../models/ProductSchema');
 const User = require('../models/UserSchema')
 
+const moment = require('moment');
+
 const createOrder = async (req, res) => {
     try {
-        const {userId,productId,quantity} = req.body;
-        const product = await Product.findById(productId);
-        if(!product){
-            return res.status(404).json({success:false, message:"Sản phẩm không tồn tại!"});
-    
-        }
-        
-        if(quantity > product.stock){
-            return res.status(400).json({message:"Số lượng sản phẩm không đủ!"});
-        }
-        const totalAmount = quantity * product.price;
-        if(totalAmount <= 0){
-            return res.status(401).json({success:false,message:"Sản phẩm không hợp lệ!"});
+        const { userId, products } = req.body;
 
+        // Kiểm tra xem các sản phẩm có tồn tại và số lượng có đủ không
+        const orderProducts = [];
+        let totalAmount = 0;
+
+        for (const item of products) {
+            const { productId, quantity } = item;
+            const product = await Product.findById(productId);
+            
+            if (!product) {
+                return res.status(404).json({ success: false, message: `Sản phẩm ${productId} không tồn tại!` });
+            }
+
+            if (quantity > product.stock) {
+                return res.status(400).json({ message: `Số lượng sản phẩm ${productId} không đủ!` });
+            }
+
+            // Tính toán tổng tiền cho sản phẩm
+            totalAmount += quantity * product.price;
+
+            // Thêm thông tin sản phẩm vào mảng orderProducts
+            orderProducts.push({ product: productId, quantity });
+
+            // Cập nhật số lượng tồn kho
+            product.stock -= quantity;
+            await product.save();
         }
+
+        // Tạo orderId
+        const today = moment().format('DDMMYY');
+        const orderCount = await Order.countDocuments({ createdAt: { $gte: moment().startOf('day'), $lt: moment().endOf('day') } });
+        const orderId = `VN-${today}${(orderCount + 1).toString().padStart(3, '0')}`;
+
+        // Tạo đơn hàng mới
         const order = new Order({
-            user:userId,
-            product:productId,
-            quantity,
+            user: userId,
+            products: orderProducts,
+            orderID: orderId,
             totalAmount,
-        })
+        });
+
         await order.save();
-        product.stock -=quantity;
-        await product.save();
-        res.status(200).json({success:true,data:order});
+        res.status(200).json({ success: true, data: order });
     } catch (error) {
-        console.error('Lỗi máy chủ',error);
-        res.status(500).json({success:false,message:"Lỗi server"})
-        
+        console.error('Lỗi máy chủ', error);
+        res.status(500).json({ success: false, message: "Lỗi server" });
     }
 };
+
 const getOrder = async (req, res) => {
     try {
         const { query } = req.query;
@@ -55,12 +76,12 @@ const getOrder = async (req, res) => {
             orders = await Order.find({
                 $or: [
                     { user: { $in: userIds } },
-                    { product: { $in: productIds } }
+                    { 'products.product': { $in: productIds } }
                 ]
-            }).populate('user').populate('product');
+            })
         } else {
             // Nếu không có truy vấn, lấy tất cả đơn hàng
-            orders = await Order.find().populate('user').populate('product');
+            orders = await Order.find()
         }
 
         if (!orders || orders.length === 0) {
@@ -97,7 +118,7 @@ const updateOrder = async (req, res) => {
         const updates = req.body;
 
         // Tìm đơn hàng cần cập nhật
-        const order = await Order.findById(orderId).populate('product');
+        const order = await Order.findById(orderId);
         if (!order) {
             return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại!' });
         }
@@ -106,7 +127,7 @@ const updateOrder = async (req, res) => {
         if (updates.quantity !== undefined) {
             // Kiểm tra số lượng mới và giá của sản phẩm
             const newQuantity = updates.quantity;
-            const productPrice = order.product.price;
+            const productPrice = order.products.product.price;
             
             // Tính toán tổng tiền mới
             updates.totalAmount = newQuantity * productPrice;
@@ -146,4 +167,23 @@ const deleteOrder = async (req,res)=>{
     
     }
 }
-module.exports = { createOrder, getOrder,getOneOrder,updateOrder,deleteOrder };
+const deleteManyOrder = async (req, res) => {
+    try {
+        const { _id } = req.body; // Lấy _id từ req.body
+        if (!Array.isArray(_id) || _id.length === 0) {
+            return res.status(400).json({ success: false, error: 'Không có ID đơn hàng nào được cung cấp!' });
+        }
+
+        const result = await Order.deleteMany({ _id: { $in: _id } }); // Sử dụng toán tử $in để xóa nhiều ID
+        
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ success: false, error: 'Không tìm thấy đơn hàng nào để xóa!' });
+        }
+
+        res.status(200).json({ success: true, message: "Đã xóa đơn hàng thành công", deletedCount: result.deletedCount });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message }); // Trả về mã lỗi 500 cho lỗi máy chủ
+    }
+}
+
+module.exports = { createOrder, getOrder,getOneOrder,updateOrder,deleteOrder,deleteManyOrder };

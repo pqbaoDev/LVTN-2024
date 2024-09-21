@@ -3,17 +3,34 @@ import { useState } from "react";
 import menuDotsIcon from "../../assets/images/menu-dots.png";
 import Action from "../../components/Actions/Action";
 import FormatPrice from "../../utils/formatPrice";
+import { BiSort } from "react-icons/bi";
 
 const ProductTable = ({ products }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [openRowIndex, setOpenRowIndex] = useState(null);
+  const [sortOrder, setSortOrder] = useState('name'); // 'name' hoặc 'price'
+  const [sortDirection, setSortDirection] = useState('asc'); // 'asc' hoặc 'desc'
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
-
   const totalPages = Math.ceil(products.length / itemsPerPage);
+
+  // Sắp xếp sản phẩm
+  const sortedProducts = [...products].sort((a, b) => {
+    let comparison = 0;
+    
+    if (sortOrder === 'name') {
+      comparison = a.name.localeCompare(b.name);
+    } else if (sortOrder === 'price') {
+      comparison = a.price - b.price;
+    } else if(sortOrder === 'stock') {
+      comparison = a.stock - b.stock;
+    }
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
+
+  const currentItems = sortedProducts.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -23,53 +40,57 @@ const ProductTable = ({ products }) => {
     setOpenRowIndex((prevIndex) => (prevIndex === index ? null : index));
   };
 
-  
+  const handleSortChange = (newSortOrder) => {
+    if (sortOrder === newSortOrder) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortOrder(newSortOrder);
+      setSortDirection('asc'); // Reset hướng sắp xếp khi thay đổi cột
+    }
+  };
 
   return (
     <>
-      {/* <div className="flex justify-between">
-        <div className="ml-1 mb-3">
-          <button
-            onClick={handleOpenAdd}
-            className="mx-4 btn focus:outline-none flex items-center border rounded-md py-2 px-2 gap-1"
-            aria-label="Add User"
-          >
-            <FaPlusCircle />
-            <span className="font-semibold text-[18px]">Thêm</span>
-          </button>
-        </div>
-        <div className="flex justify-between items-center gap-8 mr-8 mt-5 pb-0">
-          <select
-            name="category"
-            id=""
-            className="text-textColor font-semibold text-[15px] leading-7 px-4 py-2 focus:outline-none border border-slate-500 rounded-lg"
-          >
-            <option value="">Danh mục</option>
-            <option value="Điên thoại">Điện Thoại</option>
-          </select>
-          <select
-            name="manuFacture"
-            id=""
-            className="text-textColor font-semibold text-[15px] leading-7 px-4 py-2 focus:outline-none border border-slate-500 rounded-lg"
-          >
-            <option value="">Hãng</option>
-            <option value="Apple">Apple</option>
-          </select>
-        </div>
-      </div> */}
       <div className="mx-5">
-        <table className="w-full text-sm  text-center border-2 border-slate-300">
+        <table className="w-full text-sm text-center border-2 border-slate-300">
           <thead className="text-xs uppercase border-b-2 border-b-slate-300">
             <tr>
               <th></th>
-              <th scope="col" className="px-3 py-3">
-                Tên sản phẩm
+              <th scope="col" className="px-3 py-3 flex gap-x-4">
+                <p>Tên sản phẩm</p>
+                <div
+                  onClick={() => handleSortChange('name')}
+                  className="cursor-pointer text-center text-[18px]"
+                >
+                  {sortOrder === 'name' ? (sortDirection === 'asc' ? <BiSort /> : <div className="text-primaryColor">
+                    <BiSort />
+                  </div>  ) : <BiSort />}
+                </div>
               </th>
-              <th scope="col" className="px-3 py-3">
-                Số lượng
+              <th scope="col" className="px-1 py-3">
+                <div className="flex gap-x-4">
+
+              <p>Số lượng</p>
+                <div
+                  onClick={() => handleSortChange('stock')}
+                  className="cursor-pointer text-[18px] text-center"
+                >
+                  {sortOrder === 'stock' ? (sortDirection === 'asc' ? <BiSort /> : <div className="text-primaryColor">
+                    <BiSort />
+                  </div>) : <BiSort />}
+                </div>
+                </div>
               </th>
-              <th scope="col" className="px-3 py-3">
-                Giá
+              <th scope="col" className="px-3 py-3 flex gap-x-4">
+                <p>Giá</p>
+                <div
+                  onClick={() => handleSortChange('price')}
+                  className="cursor-pointer text-[18px] text-center"
+                >
+                  {sortOrder === 'price' ? (sortDirection === 'asc' ? <BiSort /> : <div className="text-primaryColor">
+                    <BiSort />
+                  </div>) : <BiSort />}
+                </div>
               </th>
               <th scope="col" className="px-3 py-3">
                 Danh mục
@@ -80,7 +101,6 @@ const ProductTable = ({ products }) => {
               <th scope="col" className="px-3 py-3">
                 Giảm giá
               </th>
-              
               <th scope="col" className="text-center">
                 Thao tác
               </th>
@@ -102,7 +122,6 @@ const ProductTable = ({ products }) => {
                 <td className="pr-3 py-4">{item.category.name}</td>
                 <td className="pr-3 py-4">{item.manuFacture.name}</td>
                 <td className="pr-3 py-4">{item.discount}</td>
-                
                 <td className="relative">
                   {openRowIndex === item._id && (
                     <div className="absolute right-0 top-full mt-2 w-48 z-10 bg-white shadow-lg rounded-lg">
@@ -136,7 +155,6 @@ const ProductTable = ({ products }) => {
           </button>
         ))}
       </div>
-      
     </>
   );
 };
