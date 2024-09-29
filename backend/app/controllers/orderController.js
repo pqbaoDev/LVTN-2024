@@ -6,7 +6,7 @@ const moment = require('moment');
 
 const createOrder = async (req, res) => {
     try {
-        const { userId, products } = req.body;
+        const { userId, products,phone,address,name,note } = req.body;
 
         // Kiểm tra xem các sản phẩm có tồn tại và số lượng có đủ không
         const orderProducts = [];
@@ -25,7 +25,7 @@ const createOrder = async (req, res) => {
             }
 
             // Tính toán tổng tiền cho sản phẩm
-            totalAmount += quantity * product.price;
+            totalAmount += quantity * product.price  - ((quantity * product.price) * (product.discount/100));
 
             // Thêm thông tin sản phẩm vào mảng orderProducts
             orderProducts.push({ product: productId, quantity });
@@ -46,10 +46,14 @@ const createOrder = async (req, res) => {
             products: orderProducts,
             orderID: orderId,
             totalAmount,
+            phone:phone,
+            address:address,
+            name:name,
+            note:note,
         });
 
         await order.save();
-        res.status(200).json({ success: true, data: order });
+        res.status(200).json({ success: true,message:'Tạo đơn hàng thành công', data: order });
     } catch (error) {
         console.error('Lỗi máy chủ', error);
         res.status(500).json({ success: false, message: "Lỗi server" });
@@ -60,8 +64,6 @@ const getOrder = async (req, res) => {
     try {
         const { query } = req.query;
         let orders;
-
-        // console.log('Query:', query);
 
         if (query) {
             // Tìm tất cả người dùng và sản phẩm phù hợp với truy vấn
@@ -75,6 +77,8 @@ const getOrder = async (req, res) => {
             // Tìm tất cả đơn hàng liên quan đến người dùng hoặc sản phẩm đã tìm được
             orders = await Order.find({
                 $or: [
+                    { name: { $regex: query, $options: 'i' } },
+                    { orderID: { $regex: query, $options: 'i' } },
                     { user: { $in: userIds } },
                     { 'products.product': { $in: productIds } }
                 ]
@@ -100,7 +104,6 @@ const getOneOrder = async(req,res)=>{
     try {
         const orderId = req.params.id
         const orders = await Order.findById(orderId);
-        console.log(orderId)
         if(!orders){
             return res.status(404).json({success:false,message:"Đơn hàng không tồn tại"})
         }
@@ -144,7 +147,7 @@ const updateOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại!' });
         }
 
-        res.status(200).json({ success: true, data: updatedOrder });
+        res.status(200).json({ success: true,message:'Cập nhật thành công', data: updatedOrder });
 
     } catch (error) {
         console.error('Lỗi server', error);

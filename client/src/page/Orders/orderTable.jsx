@@ -2,12 +2,19 @@
 import { useState } from "react";
 import FormatDay from "../../utils/formatDay";
 import FormatPrice from "../../utils/formatPrice";
+import OrderDeleteDialog from "./orderDeleteDialog";
+import { toast } from "react-toastify";
+import { FaTrash } from "react-icons/fa";
+import OrderDetailDialog from "./orderDetailDialog";
 
 const OrderTable = ({ orders }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
     const [tab, setTab] = useState('all');
     const [checkedOrders, setCheckedOrders] = useState({});
+    const [openDialog, setOpenDialog] = useState(false);
+    const [openDetailDialog,setOpenDetailDialog] = useState(false);
+    const [selectedIds, setSelectedIds] = useState([]);
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -18,6 +25,8 @@ const OrderTable = ({ orders }) => {
                 return orders.filter(order => order.status === 'Đang xử lý');
             case 'wfpayment':
                 return orders.filter(order => order.status === 'Chờ thanh toán');
+            case 'transport':
+                return orders.filter(order => order.status === 'Chờ vận chuyển');
             case 'complete':
                 return orders.filter(order => order.status === 'Đã hoàn tất');
             case 'canceled':
@@ -33,6 +42,7 @@ const OrderTable = ({ orders }) => {
     const orderCounts = {
         all: orders.length,
         pending: orders.filter(order => order.status === 'Đang xử lý').length,
+        transport: orders.filter(order => order.status === 'Chờ vận chuyển').length,
         wfpayment: orders.filter(order => order.status === 'Chờ thanh toán').length,
         complete: orders.filter(order => order.status === 'Đã hoàn tất').length,
         canceled: orders.filter(order => order.status === 'Đơn hủy').length,
@@ -45,7 +55,8 @@ const OrderTable = ({ orders }) => {
     const tabs = [
         { key: 'all', label: 'Tất cả' },
         { key: 'pending', label: 'Chờ xử lý' },
-        { key: 'wfpayment', label: 'Chờ thanh toán' },
+        { key: 'transport', label: 'Chờ giao' },
+        { key: 'wfpayment', label: 'Đang giao' },
         { key: 'complete', label: 'Đã hoàn tất' },
         { key: 'canceled', label: 'Đơn hủy' },
     ];
@@ -65,25 +76,58 @@ const OrderTable = ({ orders }) => {
             }));
         }
     };
+
     const selectedOrderIds = Object.keys(checkedOrders).filter(id => checkedOrders[id]);
 
-    console.log('check',selectedOrderIds);
+    const handleOpenDelete = () => {
+        if (selectedOrderIds.length > 0) {
+            setSelectedIds(selectedOrderIds);
+            setOpenDialog(true);
+        } else {
+            toast.warn("Hãy chọn đơn hàng bạn muốn xóa!");
+        }
+    };
 
+    const handleCloseDelete = () => {
+        setOpenDialog(false);
+        setSelectedIds([]);
+    };
+    const handleOpenDetail =(id)=>{
+        setSelectedIds(id);
+        setOpenDetailDialog(true);
+    }
+    const handleCloseDetail =()=>{
+        setOpenDetailDialog(false);
+        setSelectedIds([]);
+    }
 
     return (
         <>
-            <div className="flex m-5">
-                {tabs.map(({ key, label }) => (
+            <div className="flex m-5 justify-between">
+                <div className="flex">
+                    {tabs.map(({ key, label }) => (
+                        <button
+                            key={key}
+                            className={`py-2 px-2 text-[16px] leading-7 font-semibold ${
+                                tab === key ? 'border-b border-solid border-primaryColor text-primaryColor' : 'text-headingColor'
+                            }`}
+                            onClick={() => { setTab(key); setCurrentPage(1); setCheckedOrders({}); }}
+                        >
+                            {label} <sup>({orderCounts[key]})</sup>
+                        </button>
+                    ))}
+                </div>
+                <div className="flex justify-end">
                     <button
-                        key={key}
-                        className={`py-2 px-5 text-[16px] leading-7 font-semibold ${
-                            tab === key ? 'border-b border-solid border-primaryColor text-primaryColor' : 'text-headingColor'
-                        }`}
-                        onClick={() => { setTab(key); setCurrentPage(1); setCheckedOrders({}); }}
+                        className={`${selectedOrderIds.length > 0 
+                            ? 'border rounded-xl mr-5 flex gap-2 text-center border-solid p-2 bg-red-500 text-white '
+                            : 'hidden'}`}
+                        onClick={handleOpenDelete}
                     >
-                        {label} <sup>({orderCounts[key]})</sup>
+                        <FaTrash className="mt-1" />
+                        <span>Xóa</span>
                     </button>
-                ))}
+                </div>
             </div>
 
             <div className="mx-5">
@@ -118,13 +162,14 @@ const OrderTable = ({ orders }) => {
                                         onChange={handleSelectChange} 
                                     />
                                 </td>
-                                <td className="pr-3 py-4">{item.orderID}</td>
-                                <td className="pr-3 py-4">{item.user.name}</td>
-                                <td className="pr-3 py-4">{item.user.address}</td>
-                                <td className="pr-3 py-4">{item.user.phone}</td>
-                                <td className="pr-3 py-4">{FormatDay(item.createdAt)}</td>
+                                <td className="pr-3 py-4" onClick={()=>handleOpenDetail(item._id)}>{item.orderID}</td>
+                                <td className="pr-3 py-4" onClick={()=>handleOpenDetail(item._id)}>{item.user ? item.user.name : item.name}</td>
+                                <td className="pr-3 py-4" onClick={()=>handleOpenDetail(item._id)}>{item.user ? item.user.address : item.address}</td>
+                                <td className="pr-3 py-4" onClick={()=>handleOpenDetail(item._id)}>{item.user ? item.user.phone : item.phone}</td>
+                                <td className="pr-3 py-4" onClick={()=>handleOpenDetail(item._id)}>{FormatDay(item.createdAt)}</td>
                                 <td className={`pr-3 py-4 ${
                                     item.status === 'Đang xử lý' ? 'text-green-500' :
+                                    item.status === 'Chờ vận chuyển' ? 'text-yellow-500' :
                                     item.status === 'Chờ thanh toán' ? 'text-orange-500' :
                                     item.status === 'Đơn hủy' ? 'text-red-500' : ''
                                 }`}>
@@ -141,12 +186,38 @@ const OrderTable = ({ orders }) => {
                     <button
                         key={i}
                         onClick={() => handlePageChange(i + 1)}
-                        className={`mx-1 px-3 py-1 rounded-lg ${currentPage === i + 1 ? "bg-prtext-primaryColor text-white" : "bg-gray-300 text-gray-700"}`}
+                        className={`mx-1 px-3 py-1 rounded-lg ${
+                            currentPage === i + 1
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-300 text-gray-700"
+                        }`}
                     >
                         {i + 1}
                     </button>
                 ))}
             </div>
+            <OrderDeleteDialog
+                orderIds={selectedIds}
+                open={openDialog}
+                handleClose={handleCloseDelete}
+                size='lg'
+                position='center'
+                animate={{
+                    mount: { x: 1, y: 0 },
+                    unmount: { x: 0.9, y: -100 }
+                }}
+            />
+            <OrderDetailDialog
+                orderId={selectedIds}
+                open={openDetailDialog}
+                handleClose={handleCloseDetail}
+                size='lg'
+                position='center'
+                animate={{
+                    mount: { x: 1, y: 0 },
+                    unmount: { x: 0.9, y: -100 }
+                }}
+            />
         </>
     );
 };

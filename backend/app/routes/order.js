@@ -8,6 +8,6 @@ router.post("/",createOrder)
     .get("/:id",getOneOrder)
     .put("/:id",updateOrder)
     .delete("/:id",deleteOrder)
-    .deleteMany("/",deleteManyOrder)
+    .delete("/",deleteManyOrder)
 
 module.exports = router;

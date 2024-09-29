@@ -19,7 +19,8 @@
     "hbs": "^4.2.0",
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.30.1",
-    "mongoose": "^8.5.3"
+    "mongoose": "^8.5.3",
+    "react-barcode": "^1.5.3"
   },
   "devDependencies": {
     "eslint": "^9.10.0",

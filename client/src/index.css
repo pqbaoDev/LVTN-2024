@@ -17,10 +17,10 @@
     }
 
     .heading {
-        @apply text-[36px] leading-[30px] font-[550] text-headingColor;
+        @apply text-[26px] leading-[30px] font-[550] text-headingColor;
     }
     .text__para {
-        @apply text-[18px] leading-[30px] font-normal text-textColor mt-[18px];
+        @apply text-[18px] leading-[30px] font-normal text-textColor mt-[18px] border border-solid border-[#0066ff61] focus:outline-none focus:border-primaryColor;
     }
     .header {
         @apply bg-[url('./assets/images/mask.png')] bg-no-repeat bg-center bg-cover w-full h-[100px] leading-[100px];
@@ -51,3 +51,9 @@
         @apply text-[16px] leading-7 mt-3;
     }
 }
+@media print {
+    .no-print {
+        display: none;
+    }
+}
+

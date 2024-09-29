@@ -4,8 +4,12 @@ const OrderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
     },
+    name: {
+        type:String,
+    },
+    phone: {type:String},
+    address:{type:String},
     products: [{
         product: {
             type: mongoose.Schema.Types.ObjectId,
@@ -34,9 +38,14 @@ const OrderSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    payment:{
+        type:String,
+        enum:['COD','Đã thanh toán'],
+        default:'COD'
+    },
     status: {
         type: String,
-        enum: ['Đang xử lý', 'Chờ thanh toán', 'Đã hoàn tất', 'Đơn hủy'],
+        enum: ['Đang xử lý','Chờ vận chuyển', 'Chờ thanh toán', 'Đã hoàn tất', 'Đơn hủy'],
         default: 'Đang xử lý'
     }
 });
@@ -48,7 +57,7 @@ OrderSchema.pre(/^find/, function(next) {
         select: 'name address phone'
     }).populate({
         path:'products.product',
-        select:'name photo manuFacture price'
+        select:'name photo manuFacture price discount'
     }); // Thay đổi đây để populate đúng
     next();
 });

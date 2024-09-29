@@ -6,10 +6,22 @@ import { BASE_URL } from "../../../config";
 import Loading from "../../components/Loader/Loading";
 import Error from "../../components/Error/Error";
 import OrderTable from "./orderTable";
+import { FaPlus } from "react-icons/fa";
+import OrderAddDialog from "./orderAddDialog";
 const Order = () => {
     const [debounceQuery,setDebounceQuery] = useState('');
     const {data:order,loading,error}= useFetchData(`${BASE_URL}/order?query=${debounceQuery}`)
     const [query,setQuery] = useState(' ');
+    const [openDialog,setOpenDialog] = useState(false);
+
+    const handleOpen =()=>{
+        setOpenDialog(true);
+    }
+
+    const handleClose = ()=>{
+        setOpenDialog(false);
+    }
+
     useEffect(()=>{
         const timeOut = setTimeout(()=>{
             setDebounceQuery(query);
@@ -19,8 +31,25 @@ const Order = () => {
     return (
         <>
             <section className="py-0 px-5 pt-4 flex justify-between">
-                <div className="text-left">
+            <div className="text-left flex gap-4 relative group">
                     <h2 className="heading">Quản lý đơn hàng</h2>
+                    <div className="m-auto flex">
+                        <button
+                            className="border border-solid rounded-full text-white text-[12px] bg-black text-center p-1"
+                            // aria-label="Thêm đơn hàng"
+                            onClick={handleOpen}
+                        >
+                            <FaPlus />
+                        </button>
+                        <div
+                            className={`absolute left-full rounded-md py-1 ml-1 w-20 flex justify-center 
+                            bg-indigo-100 text-indigo-800 text-sm z-10 invisible group-hover:visible
+                            group-hover:opacity-100 group-hover:translate-x-0
+                            `}
+                        >
+                            <p>Thêm</p>
+                        </div>
+                    </div>
                 </div>
                 <div className="w-1/3 justify-end flex">
                     <div className="relative w-full max-w-lg">
@@ -55,6 +84,16 @@ const Order = () => {
                     )}
                 </div>
             </section>
+            <OrderAddDialog
+                open={openDialog}
+                handleClose={handleClose}
+                size = 'lg'
+                position = 'center'
+                animate={{
+                    mount: { x: 1, y: 0 },
+                    unmount: { x: 0.9, y: -100 }
+                }}
+            />
             
         </>
     );
