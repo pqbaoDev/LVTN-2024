@@ -10,6 +10,17 @@ const Employee = require("./app/routes/employee");
 const Order = require("./app/routes/order");
 const Category = require("./app/routes/category");
 const ManuFacture = require("./app/routes/manuFacture");
+const WareHouse = require("./app/routes/warehouse");
+const Promotion = require("./app/routes/promotion");
+const Warranty = require("./app/routes/warranty");
+const Cart = require("./app/routes/cart");
+const Retail = require("./app/routes/retail");
+const Zone = require("./app/routes/zone");
+const Location = require("./app/routes/location");
+const StockIn = require("./app/routes/stockIn");
+// const Bin = require("./app/routes/warhouse/bin");
+// const Shelf = require("./app/routes/warhouse/shelf");
+// const Shelf = require("./app/routes/warhouse/shelf");
 
 
 const app = express();
@@ -26,6 +37,17 @@ app.use("/api/employee",Employee);
 app.use("/api/order",Order);
 app.use("/api/category",Category);
 app.use("/api/manuFacture",ManuFacture)
+app.use("/api/warehouse",WareHouse);
+app.use("/api/promotion",Promotion);
+app.use("/api/warranty",Warranty);
+app.use("/api/cart",Cart);
+app.use("/api/retail",Retail)
+app.use("/api/zone",Zone);
+app.use("/api/location",Location);
+app.use("/api/stockIn",StockIn);
+// app.use("/api/warehouse/bin",Bin);
+// app.use("/api/warehouse/shelf",Shelf);
+
 
 
 

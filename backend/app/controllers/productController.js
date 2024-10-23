@@ -1,24 +1,85 @@
 const Product = require("../models/ProductSchema");
 const ManuFacture = require("../models/ManufactureSchema");
-const Category = require("../models/CategorySchema")
+const Category = require("../models/CategorySchema");
+const Location = require("../models/LocationSchema");
+const StockInSModel = require("../models/StockInSchema");
 
-const createProduct = async(req,res)=>{
+const createProduct = async (req, res) => {
     try {
-        const {name,stock,price,manuFacture,category} = req.body;
-        const existingProduct = await Product.findOne({name});
-        if(existingProduct){
-            existingProduct.stock += stock;
-           const updateProduct = await existingProduct.save();
-           return res.status(200).json({success:true,data:updateProduct});
+        const { 
+            
+            name,
+            manuFacture,
+            category,
+            photo,
+            color,
+            size,
+            discount,
+            price,
+            stock,
+            tags,
+            rating,
+            rack,
+            pallet,
+            level,
+            type,
+            quantity,
+            employeeId
+        } = req.body;
+
+        const location = await Location.findOne({
+            type:type,
+            rack: (type=='rack')? rack : null,
+            pallet: (type=='pallet')? pallet : null,
+            level: (type=='rack') ? level : null,
+        })
+
+        if(!location){
+            return res.status(409).json({message:'Vị trí không tồn tại'});
         }
-        const newproduct = new Product(req.body);
-        await newproduct.save();
-        res.status(201).json({success:true,data:newproduct});
-      } catch (error) {
-        res.status(400).json({ error: error.message });
-      }
-      
+        const getProduct = await Product.findOne({ name });
+        
+        if (getProduct) {
+            getProduct.stock += quantity;
+            const updatedProduct = await getProduct.save();
+            return res.status(200).json({ success: true, data: updatedProduct });
+        }
+
+        const newProduct = new Product({
+           
+            name,
+            manuFacture,
+            category,
+            photo,
+            color,
+            size,
+            discount,
+            price,
+            stock:quantity,
+            tags,
+            rating,
+        });
+        
+        await newProduct.save();
+        const newStock = new StockInSModel({
+            product:newProduct._id,
+            location:location._id,
+            employee:employeeId,
+            quantity,
+
+        })
+        await newStock.save();
+        location.product = newProduct._id;
+        location.quantity = quantity;
+        await location.save();
+        res.status(201).json({ success: true, data: newProduct });
+    } catch (error) {
+        console.error('Lỗi khi tạo sản phẩm:', error);
+        res.status(400).json({ success: false, error: error.message });
+    }
 };
+
+
 const updateProduct = async(req, res)=>{
 
     try {
@@ -117,15 +178,20 @@ const deleteProduct = async(req,res)=>{
 }
 const deleteAllProduct = async(req,res)=>{
     try {
-        const product = await Product.deleteMany();
-        if(!product){
-            return res.status(404).json({success:false,error:'Sản phẩm không tồn tại!'})
+        const { _id } = req.body; // Lấy _id từ req.body
+        if (!Array.isArray(_id) || _id.length === 0) {
+            return res.status(400).json({ success: false, error: 'Không có ID sản phẩm nào được cung cấp!' });
         }
-        res.status(200).json({success:true,message:'Xóa sản phẩm thành công!'})
+    
+        const result = await Product.deleteMany({ _id: { $in: _id } }); // Sử dụng toán tử $in để xóa nhiều ID
+        
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ success: false, error: 'Không tìm thấy sản phẩm nào để xóa!' });
+        }
+    
+        res.status(200).json({ success: true, message: "Đã xóa sản phẩm thành công", deletedCount: result.deletedCount });
     } catch (error) {
-        res.status(400).json({
-            error: error.message
-        })
+        res.status(500).json({ success: false, error: error.message }); // Trả về mã lỗi 500 cho lỗi máy chủ
     }
 }
 module.exports = {createProduct,updateProduct,getSingleProduct,getAllProduct,deleteProduct,deleteAllProduct}

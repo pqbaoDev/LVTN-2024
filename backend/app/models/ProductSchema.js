@@ -3,23 +3,33 @@ const mongoose = require("mongoose");
 const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, index: true },
-
     description: { type: String },
+    category: { type: mongoose.Schema.Types.ObjectId, required: true, index: true, ref: 'Category' },
+    manuFacture: { type: mongoose.Schema.Types.ObjectId, required: true, index: true, ref: 'ManuFacture' },
+    // warehouse: { type: mongoose.Schema.Types.ObjectId, index: true, ref: 'Warehouse' },
+    photo: { type: String },
+    color: { type: String }, // Sửa "require" thành "required"
+    size: { type: String },
+    discount: { type: Number, min: 0, max: 100, default: 0 },
     price: { type: Number, required: true, min: 0 },
-    category: { type: mongoose.Schema.Types.ObjectId,required:true,index:true,ref:'Category' },
     stock: { type: Number, default: 1, min: 0 },
-    photo: [String],
-    manuFacture:{ type: mongoose.Schema.Types.ObjectId,required:true,index:true,ref:'ManuFacture'},
+    
+
     tags: [String],
-    discount: { type: Number, min: 0, max: 100 },
-    rating: { type: Number, min: 0, max: 5 },
+    rating: { type: Number, min: 0, max: 5, default: 0 },
   },
   { timestamps: true }
 );
-ProductSchema.pre(/^find/, function(next) {
-  this.populate('category').populate('manuFacture');
+
+// Middleware để populate dữ liệu liên quan
+ProductSchema.pre(/^find/, function (next) {
+  this.populate('category').populate({
+    path:'manuFacture',
+    select:'name'
+  }); // Đảm bảo chính xác
   next();
 });
+
 const ProductModel = mongoose.model("Product", ProductSchema);
 
 module.exports = ProductModel;

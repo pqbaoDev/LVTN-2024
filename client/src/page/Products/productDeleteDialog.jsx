@@ -45,16 +45,14 @@ import {
         size="lg"
         open={open}
         handler={handleClose}
-        animate={{
-          mount: { scale: 1, y: 0 },
-          unmount: { scale: 0.9, y: -100 },
-        }}
-        className="mx-auto max-w-lg h-1/3 border border-gray-300 shadow-2xl bg-white"
+        
+        className=" fixed inset-0 flex justify-center items-center bg-black z-50  bg-opacity-100"
       >
+        <div  className='relative w-full max-w-lg bg-white border border-gray-300 shadow-2xl rounded-lg'>
         <DialogHeader className="  text-white justify-center text-[16px] rounded-t-lg bg-blue-400">
           <span>
   
-              Xóa tài khoản khách hàng
+              Xóa Sản phẩm
           </span>
           <div className=" absolute top-2 right-2">
                           <img src={closeIcon} onClick={handleClose} className='w-5 h-5' alt="" />
@@ -78,6 +76,7 @@ import {
           
           
         </DialogFooter>
+        </div>
       </Dialog>
     );
   };

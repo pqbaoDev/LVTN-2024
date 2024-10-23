@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import FormatDay from "../../utils/formatDay";
+import {FormatDay} from "../../utils/formatDay";
 import FormatPrice from "../../utils/formatPrice";
 import OrderDeleteDialog from "./orderDeleteDialog";
 import { toast } from "react-toastify";

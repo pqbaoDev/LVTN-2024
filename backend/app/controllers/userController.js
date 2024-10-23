@@ -48,6 +48,7 @@ const getAllUser = async (req,res)=>{
             users = await User.find({
             $or:[
                 { name: { $regex: query, $options: 'i' } },
+                {phone:{ $regex: query, $options: 'i' }}
             ],
         }).select('-password');
         }else{

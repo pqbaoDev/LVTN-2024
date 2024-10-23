@@ -6,13 +6,12 @@ import { BASE_URL, token } from '../../../config';
 import { useEffect, useState } from 'react';
 import closeIcon from '../../assets/images/close.png';
 import logo from "../../assets/images/logo.png";
-import FormatDay from '../../utils/formatDay';
+import {FormatDay} from '../../utils/formatDay';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Barcode from 'react-barcode';
 import nowfree from '../../assets/images/delivery-120-minutes.png';
 import FormatPrice from '../../utils/formatPrice';
-
 const OrderDetailDialog = ({ open, handleClose, orderId }) => {
     const { data: order } = useFetchData(orderId ? `${BASE_URL}/order/${orderId}` : null);
     const [formData, setFormData] = useState({
@@ -157,8 +156,10 @@ const OrderDetailDialog = ({ open, handleClose, orderId }) => {
                 mount: { x: 1, y: 0 },
                 unmount: { x: 0.9, y: -100 }
             }}
-            className='mx-auto max-w-4xl border border-gray-300 shadow-2xl bg-white'
+            
+            className='fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50'
         >
+            <div className="relative w-full max-w-4xl bg-white border border-gray-300 shadow-2xl rounded-lg">
             <form onSubmit={handleComfirm}>
                 <DialogHeader className="no-print text-white justify-center heading rounded-t-lg bg-blue-400 gap-3">
                     Chi tiết <span className='text-primaryColor'>Đơn hàng</span>
@@ -345,6 +346,7 @@ const OrderDetailDialog = ({ open, handleClose, orderId }) => {
                     </div>
                 </DialogFooter>
             </form>
+            </div>
         </Dialog>
     );
 }

@@ -79,8 +79,11 @@ const UserAddDialog = ({ open, handleClose }) => {
                 mount: { scale: 1, y: 0 },
                 unmount: { scale: 0.9, y: -100 },
             }}
-            className="mx-auto max-w-lg border border-gray-300 shadow-2xl bg-white"
+            className="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50"
         >
+            <div  className='relative w-full max-w-lg bg-white border border-gray-300 shadow-2xl rounded-lg'>
+
+            
             <form action="" onSubmit={submitHandler}>
 
                 <DialogHeader className="  text-white justify-center text-[16px] bg-blue-400 rounded-t-lg">
@@ -200,6 +203,7 @@ const UserAddDialog = ({ open, handleClose }) => {
 
                 </DialogFooter>
             </form>
+            </div>
 
         </Dialog>
     )

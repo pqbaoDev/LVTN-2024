@@ -9,7 +9,6 @@ import chartFill from "../../assets/images/Chart_fill.png";
 import productImg from "../../assets/images/product.png";
 import orderImg from "../../assets/images/order.png";
 import userImg from "../../assets/images/User.png";
-import categoryImg from "../../assets/images/category.png";
 import settingImg from "../../assets/images/Setting.png";
 import employee from '../../assets/images/employees.png';
 import repair from '../../assets/images/repair.png';
@@ -19,14 +18,13 @@ import whouse from '../../assets/images/whouse.png';
 
 const navLinks = [
     { path: '/home', display: 'Thống kê', src: chartFill },
-    { path: '/category', display: 'Danh mục', src: categoryImg },
     { path: '/user', display: 'Khách hàng', src: userImg },
     { path: '/employee', display: 'Nhân viên', src: employee },
     { path: '/product', display: 'Sản phẩm', src: productImg, gap: true },
     { path: '/order', display: 'Đơn hàng', src: orderImg },
     { path: '/warehouse', display: 'Kho hàng', src: whouse },
-    { path: '/sales', display: 'Khuyến mãi', src: sales },
-    { path: '/repair', display: 'Bảo hành', src: repair },
+    { path: '/promotion', display: 'Khuyến mãi', src: sales },
+    { path: '/warranty', display: 'Bảo hành', src: repair },
     { path: '/feedback', display: 'Phản hồi', src: comment, gap: true },
     { path: '/setting', display: 'Cài đặt', src: settingImg }
 ];
@@ -83,8 +81,8 @@ const LeftSideBar = () => {
 
     return (
       <section
-        className={` relative p-5 pt-8 duration-300 h-full bg-black text-white ${
-          open ? "w-72" : "w-20"
+        className={` relative p-5 pt-8 duration-300 h-full bg-primaryColor text-white ${
+          open ? "w-52" : "w-20"
         }`}
       >
         <img

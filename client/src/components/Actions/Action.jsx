@@ -5,25 +5,27 @@ import UserEditDialog from "../../page/Users/UserEditDialog";
 import UserDeleteDialog from "../../page/Users/userDeleteDialog";
 import EmployeeDeleteDialog from "../../page/Employees/EmployeeDelete";
 import EmployeeEdit from "../../page/Employees/EmployeeEdit";
-import ProductEditDialog from "../../page/Products/productEditDialog";
+// import ProductEditDialog from "../../page/Products/productEditDialog";
 import ProductDeleteDialog from "../../page/Products/productDeleteDialog";
 
 const Action = ({ id, type }) => { // Thêm prop type để phân biệt loại đối tượng (user/employee)
     const [openEdit, setOpenEdit] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
+
+    console.log("checkId",id)
     
 
-    const handleOpenEdit = (id) => {
-        setSelectedId(id);
-        setOpenEdit(true);
-    };
-
+    
     const handleOpenDelete = (id) => {
         setSelectedId(id);
         setOpenDelete(true);
     };
-
+    
+    const handleOpenEdit = (id) => {
+        setSelectedId(id);
+        setOpenEdit(true);
+    };
     const handleClose = () => {
         setOpenEdit(false);
         setSelectedId(null);
@@ -115,7 +117,7 @@ const Action = ({ id, type }) => { // Thêm prop type để phân biệt loại 
                     }}
                 />
             )}
-            {type === 'product' && (
+            {/* {type === 'product' && (
                 <ProductEditDialog
                     productId={selectedId}
                     open={openEdit}
@@ -127,13 +129,13 @@ const Action = ({ id, type }) => { // Thêm prop type để phân biệt loại 
                         unmount: { x: 0.9, y: -100 }
                     }}
                 />
-            )}
+            )} */}
             {type === 'product' && (
                 <ProductDeleteDialog
                     productId={selectedId}
                     open={openDelete}
                     handleClose={handleCloseDelete}
-                    size='lg'
+                    size='xl'
                     position='center'
                     animate={{
                         mount: { x: 1, y: 0 },
