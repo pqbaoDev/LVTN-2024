@@ -36,7 +36,7 @@ const LocationSchema = new mongoose.Schema({
 LocationSchema.pre('find', function (next) {
   this.populate({
     path: 'zone',
-    select: 'name' // Chỉ lấy tên của zone
+    select: 'name symbol' // Chỉ lấy tên của zone
   }).populate({
     path: 'product',
     select: 'name' // Chỉ lấy tên của product

@@ -99,9 +99,11 @@ const AddRackAndPallet = ({ open, handleClose, stopPropagation, location, zoneNa
 
                                 <div className="relative border-2 border-slate-500 flex-auto">
                                     <div className="border-b-2 px-2 py-1">
-                                        <div className="items-center cursor-pointer" onClick={submitHandler}>
+                                        <div className="items-center cursor-pointer" >
+                                            <div className="w-6" onClick={submitHandler}>
                                             <img src={SaveIcon} className="w-6 h-6" alt="Save Icon" />
                                             <p className="text-[12px] font-normal">Lưu</p>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="bg-white h-[300px] overflow-auto relative ">

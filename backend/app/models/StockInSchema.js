@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 
 const StockInSchema = new mongoose.Schema({
+    _id:{
+        type:String,
+    },
     employee: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Employee',  // Giả sử có mô hình Employee
@@ -25,6 +28,8 @@ const StockInSchema = new mongoose.Schema({
         type: Date,
         default: Date.now // Mặc định là thời gian hiện tại
     },
+    status:{type:String,enum:['Đã hoàn tất','Chưa hoàn tất'],default:'Chưa hoàn tất'},
+    note:{type:String},
     
 }, {
     timestamps: true // Thêm timestamps cho thời gian tạo và cập nhật
@@ -32,11 +37,14 @@ const StockInSchema = new mongoose.Schema({
 StockInSchema.pre(/^find/, function(next) {
     this.populate({
         path: 'employee',
-        select: 'name employeeId'
+        select: 'name employeeId phone'
     }).populate({
         path:'product',
         select:'name photo manuFacture price discount'
-    }).populate('location'); // Thay đổi đây để populate đúng
+    }).populate({
+        path:'location',
+        select:'zone rack pallet type '
+    }); // Thay đổi đây để populate đúng
     next();
 });
 

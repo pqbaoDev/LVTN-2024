@@ -189,6 +189,15 @@ table tr:nth-child(even){
       left: 0;
       width: 40%;
   }
+  .print-stockIn, .print-stockIn * {
+    visibility: visible;
+}
+.print-stockIn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
   .warring{
     display: block !important;
   }

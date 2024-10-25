@@ -139,11 +139,9 @@ const Zone = () => {
 
                             {Object.values(group.pallets).map(([palletName, palletData]) => (
                                 <div key={palletData._id}>
-                                    <div onClick={()=>handleOpenStockIn(palletData._id)} className={`border-2 mt-2 px-4 py-2 text-white cursor-pointer ${palletData.product ? 'bg-red-400' : 'bg-orange-400'}`}>
-                                        <p className="text-center">{palletName}</p>
-                                        {palletData.product && (
-                                            <p className="text-center text-sm text-yellow-300">Product: {palletData.product}</p>
-                                        )}
+                                    <div onClick={()=>handleOpenStockIn(palletData._id)} className={`border-2 text-center mt-2 px-4 py-2 text-white cursor-pointer bg-orange-400`}>
+                                        <p className={palletData.product ? 'text-red-500' : 'text-white'}>{palletName}</p>
+                                        
                                     </div>
                                 </div>
                             ))}
@@ -172,6 +170,7 @@ const Zone = () => {
                 handleClose ={handleCloseStockIn}
                 locationId = {selectedId}
                 stopPropagation={stopPropagation}
+                zone={zone}
 
             />
         </div>

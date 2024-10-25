@@ -25,7 +25,7 @@ const ProductSchema = new mongoose.Schema(
 ProductSchema.pre(/^find/, function (next) {
   this.populate('category').populate({
     path:'manuFacture',
-    select:'name'
+    select:'name phone'
   }); // Đảm bảo chính xác
   next();
 });
