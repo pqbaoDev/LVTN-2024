@@ -202,4 +202,7 @@ table tr:nth-child(even){
     display: block !important;
   }
 }
+#leftSideBar span {
+  margin-left: 0 !important;
+}
 

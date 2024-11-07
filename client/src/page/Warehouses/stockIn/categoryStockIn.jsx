@@ -1,10 +1,11 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../../../../config";
 import useFetchData from "../../../Hook/userFecthData";
 import TableStockIn from "./tableStockIn";
 import { LiaSearchSolid } from "react-icons/lia";
 
-const CategoryStockIn = () => {
+const CategoryStockIn = ({locationId}) => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [start, setStart] = useState('');
@@ -15,7 +16,7 @@ const CategoryStockIn = () => {
 
     // Sử dụng custom hook để fetch dữ liệu khi startDate, endDate, và zone thay đổi
     const { data: stockIn, loading, error } = useFetchData(
-        `${BASE_URL}/stockIn/daterange?startDate=${startDate}&endDate=${endDate}&zone=${selectedZone}&query=${selectedQuery}`,
+        `${BASE_URL}/stockIn/daterange/${locationId}?startDate=${startDate}&endDate=${endDate}&zone=${selectedZone}&query=${selectedQuery}`,
         [startDate, endDate, selectedZone] // Fetch lại khi startDate, endDate, hoặc zone thay đổi
     );
     const { data: zone } = useFetchData(`${BASE_URL}/zone`);

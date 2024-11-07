@@ -36,6 +36,7 @@ const Product = () => {
     );
     const { data: category } = useFetchData(`${BASE_URL}/category`);
     const { data: manuFacture } = useFetchData(`${BASE_URL}/manuFacture`);
+    const { data: location } = useFetchData(`${BASE_URL}/location`);
     
 
     // Handle dialog open/close
@@ -70,7 +71,6 @@ const Product = () => {
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const totalPages = Math.ceil(product.length / itemsPerPage);
 
     // Sắp xếp sản phẩm
     const sortedProducts = [...product].sort((a, b) => {
@@ -93,6 +93,35 @@ const Product = () => {
     });
 
     const currentItems = sortedProducts.slice(indexOfFirstItem, indexOfLastItem);
+const productWithLocation = [];
+
+// Lặp qua từng khu vực trong location
+Object.values(location).forEach(area => {
+  area.products?.forEach(prod => {
+    const foundProducts = currentItems?.filter(pro => pro._id === prod.product._id);
+    
+    foundProducts.forEach(foundProduct => {
+      // Tạo một đối tượng cho mỗi sản phẩm với thông tin vị trí
+      productWithLocation.push({
+        ...foundProduct,
+       type: area.type,
+        level: area.level,
+       rack: area.rack,
+        pallet: area.pallet
+      });
+    });
+
+    console.log('Product:', prod.product);
+  });
+});
+
+console.log('Products with Locations:', productWithLocation);
+const totalPages = Math.ceil(productWithLocation.length / itemsPerPage);
+
+
+    
+    
+
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -361,53 +390,36 @@ const Product = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="bg-slate-50">
-                                            {currentItems.map((item) => (
-                                                <tr key={item._id} className="text-[16px] text-center relative ">
-                                                    <td className="border-r-2 border-slate-400 pr-3">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={checkedProducts[item._id] || false}
-                                                            name={item._id}
-                                                            onChange={handleSelectChange}
-                                                        />
-                                                    </td>
-                                                    <td className="pr-3 border-r-2 border-slate-400" onClick={() => handleSelectId(item._id)}>{item.name}</td>
-{/* 
-                                                    <td className=" p-0 pr-0 m-0" onClick={() => handleSelectId(item._id)}>
-                                                        {item.type.map((typeItem, index) => (
-                                                            <div key={`${item._id}-${index}`} className="grid grid-cols-4  items-center text-center justify-center">
-                                                                <div className="flex items-center border-r-2 border-slate-400 border-b-2 p-2 justify-center w-full"> <div
-                                                                    style={{
-                                                                        backgroundColor: typeItem.color || 'transparent',
-                                                                        width: '50px',
-                                                                        height: '20px', 
-                                                                    }}
-                                                                ></div></div>
-                                                                <span className="flex items-center border-r-2 border-slate-400 border-b-2 p-2 justify-center w-full" onClick={() => handleSelectId(item._id)}>{typeItem.size}</span>
-                                                                <span className="flex items-center border-r-2 border-slate-400 border-b-2 p-2 justify-center w-full" onClick={() => handleSelectId(item._id)}>{typeItem.stock}</span>
-                                                                <span className="flex items-center   border-slate-400 border-b-2 p-2  justify-center" onClick={() => handleSelectId(item._id)}>{FormatPrice(typeItem.price)}</span>
-                                                            </div>
-                                                        ))}
-                                                    </td> */}
-                                                    <td className=" border-x-2 border-slate-400 text-center items-center min-w-24" onClick={() => handleSelectId(item._id)}>
-                                                        <div
-                                                        className="border-2 w-14 h-6 border-black mx-auto"
-                                                            style={{backgroundColor:item.color}}
-                                                        ></div>
-                                                        
-                                                    </td>
-                                                    <td className=" border-x-2 border-slate-400 text-center items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.size}</td>
-                                                    <td className=" border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.stock}</td>
-                                                    <td className=" border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.price}</td>
-                                                    <td className=" border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.category.name}</td>
-                                                    <td className=" border-r-2 border-slate-400 items-center" onClick={() => handleSelectId(item._id)}>{item.manuFacture.name}</td>
-                                                    <td className=" border-r-2 border-slate-400 items-center" onClick={() => handleSelectId(item._id)}>{item.location?.rack}L{item.location?.level}</td>
-                                                    <td className="p-3 text-[16px] font-semibold cursor-pointer" onClick={()=>handleAddOrder(item._id)}>+</td>
+    {productWithLocation.map((item) => (
+        <tr key={item._id} className="text-[16px] text-center relative">
+            <td className="border-r-2 border-slate-400 pr-3">
+                <input
+                    type="checkbox"
+                    checked={checkedProducts[item._id] || false}
+                    name={item._id}
+                    onChange={handleSelectChange}
+                />
+            </td>
+            <td className="pr-3 border-r-2 border-slate-400" onClick={() => handleSelectId(item._id)}>{item.name}</td>
+            <td className="border-x-2 border-slate-400 text-center items-center min-w-24" onClick={() => handleSelectId(item._id)}>
+                <div
+                    className="border-2 w-14 h-6 border-black mx-auto"
+                    style={{ backgroundColor: item.color }}
+                ></div>
+            </td>
+            <td className="border-x-2 border-slate-400 text-center items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.size}</td>
+            <td className="border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.stock}</td>
+            <td className="border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.price}</td>
+            <td className="border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.category.name}</td>
+            <td className="border-r-2 border-slate-400 items-center" onClick={() => handleSelectId(item._id)}>{item.manuFacture.name}</td>
+            <td  className="border-r-2 border-slate-400 items-center" onClick={() => handleSelectId(item._id)}>
+            {item.type ==='rack' ? item.rack+'L'+item.level : item.pallet+'pallet' }
+            </td>
+            <td className="p-3 text-[16px] font-semibold cursor-pointer" onClick={() => handleAddOrder(item._id)}>+</td>
+        </tr>
+    ))}
+</tbody>
 
-
-                                                </tr>
-                                            ))}
-                                        </tbody>
 
 
 

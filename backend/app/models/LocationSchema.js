@@ -2,10 +2,14 @@ const mongoose = require('mongoose');
 
 // Định nghĩa schema cho Location
 const LocationSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product"
+  products: [{
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
   },
+    quantity: { type: Number, default: 0 },
+  }],
+  capacity: { type: Number, default: 20 },
   zone: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Zone",
@@ -14,7 +18,7 @@ const LocationSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ['rack', 'pallet'],
-    default:'rack',
+    default: 'rack',
     required: true
   },
   rack: {
@@ -28,18 +32,22 @@ const LocationSchema = new mongoose.Schema({
     min: [1, 'Tầng phải lớn hơn hoặc bằng 1.'],
     default: 1
   },
-  quantity: { type: Number,default:0 },
-  capacity: { type: Number ,default:20},
 });
 
+LocationSchema.pre('save', async function (next) {
+  this.products = this.products.filter(productEntry => productEntry.quantity > 0);
+  next();
+});
+
+
 // Middleware để populate zone và product
-LocationSchema.pre('find', function (next) {
+LocationSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'zone',
-    select: 'name symbol' // Chỉ lấy tên của zone
+    select: 'name symbol' 
   }).populate({
-    path: 'product',
-    select: 'name' // Chỉ lấy tên của product
+    path: 'products.product',
+    select: 'name' 
   });
   next();
 });

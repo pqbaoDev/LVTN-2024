@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { BASE_URL } from "../../../../config";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import HashLoader from "react-spinners/HashLoader";
 import useFetchData from "../../../Hook/userFecthData";
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaEdit, FaTrash } from "react-icons/fa";
 import DeleteCategoriesDialog from "./deleteCategoriesDialog";
 import EditCategoriesDialog from "./editCategoriesDialog";
+import whouse from '../../../assets/images/whouse.png';
+
 
 
 const Category = () => {
@@ -15,7 +17,7 @@ const Category = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(5);
+    const [itemsPerPage] = useState(10);
     const [checked, setChecked] = useState({});
     const [selectedIds, setSelectedIds] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
@@ -105,6 +107,11 @@ const Category = () => {
 
     return (
         <div>
+            <div className="text-left p-5 w-1/3 flex gap-2 cursor-pointer">
+                <img src={whouse} className="w-6 h-6" alt="" />
+                <Link to={`/warehouse`} className="heading w-[150px]">Quản lý Kho</Link>
+                
+            </div>
             <div className=" text-center items-center">
 
                 <h1 className="heading">Thêm danh mục mới</h1>

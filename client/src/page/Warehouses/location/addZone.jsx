@@ -67,7 +67,7 @@ const AddZone = ({ showModal, setShowModal, zone }) => {
             <div className="relative w-2/3 my-5 mx-auto max-w-3xl" onClick={stopPropagation}>
             
               {/* Nội dung modal */}
-              <div className="border-0 p-5 bg-blue-200 rounded-lg shadow-lg relative flex flex-col w-full outline-none focus:outline-none">
+              <div className="border-0 p-5 bg-blue-500 rounded-lg shadow-lg relative flex flex-col w-full outline-none focus:outline-none">
                 {/* Header */}
                 
                 <div className="flex items-start justify-between border-b border-solid border-blueGray-200 rounded-t">
@@ -86,16 +86,21 @@ const AddZone = ({ showModal, setShowModal, zone }) => {
                 </div>
 
                 {/* Body */}
-                <div className="relative border-2 border-slate-500 flex-auto">
-                  <div className="border-b-2 px-2 py-1">
-                    <div className="items-center cursor-pointer" onClick={submitHandler}>
-                      <img src={SaveIcon} className="w-6 h-6" alt="Save Icon" />
-                      <p className="text-[12px] font-normal">Lưu</p>
-                    </div>
-                  </div>
+                <div className="relative  flex-auto">
+                <div className="border-b-2 px-2 py-1 bg-white">
+                                        <div className="items-center cursor-pointer" >
+                                            <div className="w-6" onClick={submitHandler}>
+                                            <img src={SaveIcon} className="w-6 h-6" alt="Save Icon" />
+                                            <p className="text-[12px] font-normal">Lưu</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                        <div className="h-3 bg-blue-500">
+
+                                        </div>
                   <div className="bg-white h-[300px]">
                     <table className="border-slate-400 border-t-2">
-                      <thead className="bg-blue-100">
+                      <thead className="bg-blue-300">
                         <tr>
                           <th className="border-0 border-r-2 border-solid border-slate-400 p-1"></th>
                           <th className="border-0 border-r-2 border-solid border-slate-400 p-1">TÊN</th>
@@ -117,11 +122,11 @@ const AddZone = ({ showModal, setShowModal, zone }) => {
 
                   {/* Form nhập liệu */}
                   <div className="border-2 border-solid border-slate-400 px-2">
-                    <h1 className="text-[16px] font-bold text-primaryColor">Thông tin</h1>
+                    <h1 className="text-[16px] font-bold text-black">Thông tin</h1>
                     <form onSubmit={submitHandler}>
                       <div className="grid grid-cols-8 w-3/4 items-center mx-auto">
                         <div className="flex gap-3 col-span-5">
-                          <p className="form__label">Tên</p>
+                          <p className="form__label text-black">Tên</p>
                           <input
                             type="text"
                             name="name"
@@ -133,7 +138,7 @@ const AddZone = ({ showModal, setShowModal, zone }) => {
                           />
                         </div>
                         <div className="flex col-span-3">
-                          <p className="form__label w-1/3">Ký hiệu</p>
+                          <p className="form__label text-black w-1/3">Ký hiệu</p>
                           <input
                             type="text"
                             name="symbol"
@@ -146,7 +151,7 @@ const AddZone = ({ showModal, setShowModal, zone }) => {
                       </div>
                       <div className="mx-auto mt-3 w-3/4">
                         <div className="flex items-center justify-center mb-5">
-                          <p className="form__label w-1/6">Mô tả</p>
+                          <p className="form__label text-black w-1/6">Mô tả</p>
                           <input
                             type="text"
                             name="description"

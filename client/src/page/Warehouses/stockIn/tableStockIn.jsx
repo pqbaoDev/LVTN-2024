@@ -3,10 +3,9 @@
 import { FormatDay } from "../../../utils/formatDay";
 import FormatPrice from "../../../utils/formatPrice";
 
-const TableStockIn = ({stockIn}) => {
-    console.log("check",stockIn)
+const TableStockIn = ({ stockIn }) => {
     return (
-        <div >
+        <div>
             <table className="p-0 ">
                 <thead className="bg-sky-200">
                     <tr>
@@ -22,25 +21,25 @@ const TableStockIn = ({stockIn}) => {
                     </tr>
                 </thead>
                 <tbody>
-                    
-                        {
-                            stockIn?.map((item,index)=>(
-                                <tr key={index} >
-                                    <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{index +1}</td>
-                                    <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2"></td>
-                                    <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{item._id}</td>
-                                    <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{FormatDay (item.date)}</td>
-                                    <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{item.quantity}</td>
-                                    <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{FormatPrice (item.quantity * item.product?.price)}</td>
-                                    <td className="border-2 border-sky-300  items-center text-center bg-white py-1 px-2">{item.note}</td>
-                                    <td className="border-2 border-sky-300  items-center text-center bg-white py-1 px-2">{item.status}</td>
-                                    <td className="bg-white"></td>
+                    {stockIn?.map((item, index) => {
+                        const totalPrice = item.products?.reduce((itemProduct, product) => {
+                            return itemProduct + product.quantity * product.product.price;
+                        }, 0) || 0;
 
-                                </tr>
-
-                            ))
-                        }
-                    
+                        return (
+                            <tr key={index}>
+                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{index + 1}</td>
+                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2"></td>
+                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{item._id}</td>
+                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{FormatDay(item.date)}</td>
+                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{item.quantity}</td>
+                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{FormatPrice(totalPrice)}</td>
+                                <td className="border-2 border-sky-300 items-center text-center bg-white py-1 px-2">{item.note}</td>
+                                <td className="border-2 border-sky-300 items-center text-center bg-white py-1 px-2">{item.status}</td>
+                                <td className="bg-white"></td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
         </div>

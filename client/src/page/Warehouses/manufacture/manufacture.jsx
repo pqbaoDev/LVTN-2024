@@ -3,9 +3,12 @@ import AddManufacture from "./addManufacture";
 import EditManufacture from "./editManufacture";
 import useFetchData from "../../../Hook/userFecthData";
 import { BASE_URL } from "../../../../config";
-import { FaTrash, FaEdit, FaAngleDoubleLeft, FaAngleDoubleRight, FaPlus, FaSearch } from "react-icons/fa";
+import { FaTrash, FaEdit, FaAngleDoubleLeft, FaAngleDoubleRight, FaPlus, FaSearch} from "react-icons/fa";
 import DeleteManufacture from "./deleteManufacture";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
+import whouse from '../../../assets/images/whouse.png';
+
 
 
 const Manufacture = () => {
@@ -76,6 +79,11 @@ const Manufacture = () => {
 
     return (
         <div>
+             <div className="text-left p-5 w-1/3 flex gap-2 cursor-pointer">
+                <img src={whouse} className="w-6 h-6" alt="" />
+                <Link to={`/warehouse`} className="heading w-[150px]">Quản lý Kho</Link>
+                
+            </div>
             {tab === 'add' && <AddManufacture />}
             {tab === 'edit' && <EditManufacture id={selectedIds} />}
 

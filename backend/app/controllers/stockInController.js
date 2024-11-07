@@ -1,44 +1,126 @@
 const Location = require("../models/LocationSchema");
+const ProductModel = require("../models/ProductSchema");
 const StockInSModel = require("../models/StockInSchema");
 const ZoneModel = require("../models/zoneSchema");
+const moment = require('moment');
+
 
 const createStockIn = async (req, res) => {
     try {
-        const { employeeId, productId, location, quantity } = req.body;
+        const { 
+            tags,
+            rating,
+            rack,
+            pallet,
+            level,
+            type,
+            note,
+            status = 'Chưa hoàn tất',
+            employeeId,
+            products // Mảng sản phẩm từ client
+        } = req.body;
 
-        // Kiểm tra dữ liệu đầu vào
-        if (!employeeId || !productId || !location || !quantity) {
-            return res.status(400).json({
-                message: 'Yêu cầu cung cấp đầy đủ các trường: employeeId, productId, location, quantity.'
-            });
+        // Kiểm tra location
+        const location = await Location.findOne({
+            type,
+            rack: type === 'rack' ? rack : null,
+            pallet: type === 'pallet' ? pallet : null,
+            level: type === 'rack' ? level : null,
+        });
+
+        if (!location) {
+            return res.status(409).json({ message: 'Vị trí không tồn tại' });
         }
 
-        // Tạo mới đối tượng StockIn
+        let stockInProduct = [];
+        let newProducts = []; // Để lưu sản phẩm mới tạo nếu cần xóa sau này
+        const locationProductsMap = new Map(location.products.map(p => [p.product.toString(), p]));
+
+        for (const item of products) {
+            const { name, manuFacture, category, photo, color, size, discount, price } = item;
+            let {quantity}=item
+
+            // Kiểm tra sản phẩm đã tồn tại chưa
+            let product = await ProductModel.findOne({ name });
+
+            if (product) {
+                if (typeof quantity !== 'number') {
+                    quantity = Number(quantity); 
+                }
+                product.stock += quantity; 
+                await product.save(); 
+            } else {
+                // Tạo sản phẩm mới
+                product = new ProductModel({
+                    name,
+                    manuFacture,
+                    category,
+                    photo,
+                    color,
+                    size,
+                    discount,
+                    price,
+                    stock: quantity,
+                    tags,
+                    rating,
+                });
+                await product.save();
+                newProducts.push(product); // Thêm vào danh sách mới tạo
+            }
+
+            stockInProduct.push({ product: product._id, quantity });
+
+            // Cập nhật số lượng sản phẩm trong location
+            if (locationProductsMap.has(product._id.toString())) {
+                locationProductsMap.get(product._id.toString()).quantity += quantity;
+            } else {
+                location.products.push({ product: product._id, quantity });
+            }
+        }
+
+        // Tạo mã stockIn cho ngày hiện tại
+        const today = moment().format('DDMMYY');
+        const stockInCount = await StockInSModel.countDocuments({
+            createdAt: { $gte: moment().startOf('day'), $lt: moment().endOf('day') }
+        });
+        const stockInId = `N${(stockInCount + 1).toString().padStart(3, '0')}/${today}`;
+
+        // Tạo mới StockIn
         const newStockIn = new StockInSModel({
+            _id: stockInId,
+            products: stockInProduct,
+            location: location._id,
             employee: employeeId,
-            product: productId,
-            location: location,
+            note,
+            status,
         });
 
-        // Lưu vào cơ sở dữ liệu
         const savedStockIn = await newStockIn.save();
-        // Phản hồi thành công
-        return res.status(201).json({
-            message: 'Thêm mục nhập kho thành công',
-            stockIn: savedStockIn
-        });
+        if (!savedStockIn) {
+            // Xóa các sản phẩm mới tạo nếu lưu stockIn thất bại
+            for (const product of newProducts) {
+                await ProductModel.findByIdAndDelete(product._id);
+            }
+            return res.status(409).json({ success: false, message: 'Nhập sản phẩm thất bại' });
+        }
+
+        // Cập nhật location sau khi lưu stockIn thành công
+        await location.save();
+
+        return res.status(201).json({ success: true, message: 'Nhập sản phẩm thành công', data: savedStockIn });
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-            message: 'Lỗi server',
-            error: error.message
+            message: 'Lỗi máy chủ khi tạo đơn hàng',
+            error: error.message || 'Có lỗi xảy ra'
         });
     }
 };
+
+
 const getOne = async(req,res)=>{
     try {
         const {id} = req.params;
-        console.log(id)
         const stockIn = await StockInSModel.findOne({location:id});
         res.status(200).json({data:stockIn})
     } catch (error) {
@@ -54,22 +136,30 @@ const getAll = async (req, res) => {
         return res.status(500).json({ message: "Lỗi server getAll", error: error.message });
     }
 };
+const getByIdLocation = async (req, res) => {
+    try {
+        const location = req.params.id
+        const stockInList = await StockInSModel.find({location});
+        return res.status(200).json({ data: stockInList });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Lỗi server getAll", error: error.message });
+    }
+};
 const getStockInByDateRange = async (req, res) => {
     try {
-        const { startDate, endDate, zone, query } = req.query;
-        let createList = [];
-        let locationIds = [];
+        const id = req.params.id; // Lấy locationId từ params của URL
+        
+        const { startDate, endDate, zone, query } = req.query; // Lấy các điều kiện từ query parameters
 
-        // Nếu không có bất kỳ điều kiện nào, trả về tất cả
-        if (!startDate && !endDate && !zone && !query) {
-            const StockIns = await StockInSModel.find();
-            return res.status(200).json({ success: true, data: StockIns });
-        }
-
-        // Tạo đối tượng query
         let queryObject = {};
 
-        // Kiểm tra nếu có startDate hoặc endDate
+        // Điều kiện locationId
+        if (id) {
+            queryObject.location = id;
+        }
+
+        // Điều kiện thời gian (startDate và endDate)
         if (startDate || endDate) {
             const start = startDate ? new Date(startDate) : new Date('1970-01-01');
             const end = endDate ? new Date(endDate) : new Date();
@@ -78,87 +168,45 @@ const getStockInByDateRange = async (req, res) => {
                 return res.status(400).json({ message: "Thời gian không phù hợp." });
             }
 
-            // Tìm StockIn theo khoảng thời gian
-            const stockInWithTime = await StockInSModel.find({
-                createdAt: { $gte: start, $lte: end },
-            });
-            console.log('Stock In with Time:', stockInWithTime);
-
-            // Nếu có zone, lọc theo zone
-            if (zone) {
-                const zones = await ZoneModel.find({
-                    name: { $regex: zone, $options: 'i' }
-                });
-
-                if (zones.length === 0) {
-                    return res.status(404).json({ message: "Không tìm thấy khu vực nào phù hợp." });
-                }
-
-                const zoneIds = zones.map(zone => zone._id);
-
-                // Tìm Location theo zone
-                const locations = await Location.find({ zone: { $in: zoneIds } });
-
-                if (locations.length === 0) {
-                    return res.status(404).json({ message: "Không tìm thấy vị trí nào phù hợp." });
-                }
-
-                const locationIds = locations.map(location => location._id);
-
-                // Lọc StockIn theo Location
-                const stockInListLocation = stockInWithTime.filter(stockIn =>
-                    locationIds.some(id => id.equals(stockIn.location._id))
-                );
-                
-
-                createList = stockInListLocation.map(stockIn => stockIn._id);
-                console.log("stockInWithTime:", stockInListLocation);
-
-            } else {
-                createList = stockInWithTime.map(stockIn => stockIn._id);
-            }
+            queryObject.createdAt = { $gte: start, $lte: end };
         }
 
-        // Nếu chỉ có zone mà không có ngày
-        if (zone && !startDate && !endDate) {
+        // Điều kiện zone
+        if (zone) {
             const zones = await ZoneModel.find({
                 name: { $regex: zone, $options: 'i' }
             });
 
-            if (zones.length === 0) {
+            if (zones.length > 0) {
+                const zoneIds = zones.map(z => z._id);
+                const locations = await Location.find({ zone: { $in: zoneIds } });
+                const locationIds = locations.map(location => location._id);
+
+                if (locationIds.length > 0) {
+                    queryObject.location = { $in: locationIds };
+                } else {
+                    return res.status(404).json({ message: "Không tìm thấy khu vực nào phù hợp." });
+                }
+            } else {
                 return res.status(404).json({ message: "Không tìm thấy khu vực nào phù hợp." });
             }
-
-            const zoneIds = zones.map(zone => zone._id);
-            const locations = await Location.find({ zone: { $in: zoneIds } });
-
-            locationIds = locations.map(location => location._id);
         }
 
-        // Nếu có keyword (query)
+        // Điều kiện query (tìm kiếm theo từ khóa)
         if (query) {
             queryObject._id = { $regex: query, $options: 'i' };
         }
 
-        // Nếu có createList (danh sách stockIn sau khi lọc theo thời gian và location)
-        if (createList.length > 0) {
-            queryObject._id = { $in: createList };
-        }
+        // Truy vấn các phiếu nhập theo queryObject
+        const stockIns = await StockInSModel.find(queryObject);
 
-        // Nếu có locationIds (danh sách location sau khi lọc theo zone)
-        if (locationIds.length > 0) {
-            queryObject.location = { $in: locationIds };
-        }
-
-        // Nếu không có điều kiện nào thỏa mãn
-        if (Object.keys(queryObject).length === 0) {
+        // Kiểm tra kết quả
+        if (stockIns.length === 0) {
             return res.status(404).json({ message: "Không tìm thấy phiếu nhập nào phù hợp." });
         }
 
-        // Tìm các StockIn theo queryObject
-        const StockIns = await StockInSModel.find(queryObject);
-
-        res.status(200).json({ success: true, data: StockIns });
+        // Trả về danh sách phiếu nhập
+        res.status(200).json({ success: true, data: stockIns });
 
     } catch (error) {
         console.error("Lỗi server: ", error);
@@ -168,4 +216,4 @@ const getStockInByDateRange = async (req, res) => {
 
 
 
-module.exports = { createStockIn , getOne,getAll,getStockInByDateRange};
+module.exports = { createStockIn , getOne,getAll,getStockInByDateRange,getByIdLocation};

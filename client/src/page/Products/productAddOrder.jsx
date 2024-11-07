@@ -73,7 +73,6 @@
 
         const [voucherValid, setVoucherValid] = useState(false);
         const discountVoucher =  voucherValid ?  vouchers.sale  : 0;
-        console.log("check",discountVoucher)
         
         
         let  totalSale = 0;
@@ -213,7 +212,7 @@
             <>
                 <form onSubmit={submitHandler} className="print-section">
                     <div className="border-0 border-b-2 pb-2 m-0 border-dashed border-slate-950 items-center mx-auto">
-                        <div className="relative">
+                        <div className="relative hidden">
                             <img className="w-[216px]" src={logo} alt="Logo" />
                             <div className="absolute top-8 left-7 mt-2 text-center w-[216px]">
                                 <p className='text-[13px]'>Chất lượng thật - Giá trị thật</p>
@@ -229,12 +228,12 @@
                             </div>
                         </div>
                     </div>
-                    <div className="m-3">
+                    <div className="m-3 hidden">
                         <h2 className="font-semibold text-center text-[16px]">HÓA ĐƠN BÁN LẺ</h2>
                     </div>
 
                     <div>
-                        <div className='flex gap-2'>
+                        <div className='flex gap-2 '>
                             <p className='text-[15px] font-normal'>NGÀY:</p>
                             <p className='font-semibold text-[13px]'>{FormatDay(new Date())}</p>
                             <p className='font-semibold text-[13px]'>{FormatTime(new Date())}</p>

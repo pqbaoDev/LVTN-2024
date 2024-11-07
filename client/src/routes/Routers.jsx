@@ -9,6 +9,9 @@ import Users from "../page/Users/User";
 import Promotions from "../page/Promotions/promotion";
 import Warranty from "../page/Warranty/warranty";
 import Warehouse from "../page/Warehouses/warehouse";
+import WarehouseCategory from "../page/Warehouses/category/category";
+import WarehouseManu from "../page/Warehouses/manufacture/manufacture";
+
 
 
 import {Routes,Route}from "react-router-dom"
@@ -25,6 +28,8 @@ const Routers = () => {
         <Route path="/promotion" element={<Promotions/>} />
         <Route path="/warranty" element={<Warranty/>} />
         <Route path="/warehouse" element={<Warehouse/>} />
+        <Route path="/warehouse/categories" element={<WarehouseCategory/>} />
+        <Route path="/warehouse/suppliers" element={<WarehouseManu/>} />
 
     </Routes>
 }

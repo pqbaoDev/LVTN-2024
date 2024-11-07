@@ -18,6 +18,7 @@ const Retail = require("./app/routes/retail");
 const Zone = require("./app/routes/zone");
 const Location = require("./app/routes/location");
 const StockIn = require("./app/routes/stockIn");
+const StockOut = require("./app/routes/stockOut");
 // const Bin = require("./app/routes/warhouse/bin");
 // const Shelf = require("./app/routes/warhouse/shelf");
 // const Shelf = require("./app/routes/warhouse/shelf");
@@ -45,6 +46,7 @@ app.use("/api/retail",Retail)
 app.use("/api/zone",Zone);
 app.use("/api/location",Location);
 app.use("/api/stockIn",StockIn);
+app.use("/api/stockOut",StockOut);
 // app.use("/api/warehouse/bin",Bin);
 // app.use("/api/warehouse/shelf",Shelf);
 

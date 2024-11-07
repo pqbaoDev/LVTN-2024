@@ -12,6 +12,7 @@
   "dependencies": {
     "@cloudinary/react": "^1.13.0",
     "@cloudinary/url-gen": "^1.21.0",
+    "@heroicons/react": "^2.1.5",
     "@material-tailwind/react": "^2.1.9",
     "@shadcn/ui": "^0.0.4",
     "@tanstack/react-table": "^8.20.5",

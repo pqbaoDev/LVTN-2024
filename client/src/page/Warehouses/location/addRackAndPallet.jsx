@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 const AddRackAndPallet = ({ open, handleClose, stopPropagation, location, zoneName, zone, zoneId }) => {
     const [formData, setFormData] = useState({
-        zoneId:'',
+        zoneId:zoneId,
         type: 'rack', // sẽ thay đổi giữa 'pallet' và 'rack'
         capacity: 20,
         rack: '', // Đổi thành chuỗi
@@ -83,7 +83,7 @@ const AddRackAndPallet = ({ open, handleClose, stopPropagation, location, zoneNa
                         className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
                     >
                         <div className="relative w-2/3 my-5 mx-auto max-w-3xl" onClick={stopPropagation}>
-                            <div className="border-0 p-5 bg-blue-200 rounded-lg shadow-lg relative flex flex-col w-full outline-none focus:outline-none">
+                            <div className="border-0 p-5 bg-blue-500 rounded-lg shadow-lg relative flex flex-col w-full outline-none focus:outline-none">
                                 <div className="flex items-start justify-between border-b border-solid border-blueGray-200 rounded-t">
                                     <div className="flex gap-2 items-center">
                                         <img src={CategoryIcon} className="w-4 h-4" alt="Category Icon" />
@@ -97,8 +97,8 @@ const AddRackAndPallet = ({ open, handleClose, stopPropagation, location, zoneNa
                                     </button>
                                 </div>
 
-                                <div className="relative border-2 border-slate-500 flex-auto">
-                                    <div className="border-b-2 px-2 py-1">
+                                <div className="relative  flex-auto">
+                                    <div className="border-b-2 px-2 py-1 bg-white">
                                         <div className="items-center cursor-pointer" >
                                             <div className="w-6" onClick={submitHandler}>
                                             <img src={SaveIcon} className="w-6 h-6" alt="Save Icon" />
@@ -106,14 +106,17 @@ const AddRackAndPallet = ({ open, handleClose, stopPropagation, location, zoneNa
                                             </div>
                                         </div>
                                     </div>
+                                        <div className="h-3 bg-blue-500">
+
+                                        </div>
                                     <div className="bg-white h-[300px] overflow-auto relative ">
                                         <table className="border-slate-400 border-t-2">
-                                            <thead className="bg-blue-100  sticky top-0 z-10">
+                                            <thead className="bg-blue-300  sticky top-0 z-10">
                                                 <tr>
-                                                    <th className="border-0 border-r-2 border-solid border-slate-400 p-1"></th>
-                                                    <th className="border-0 border-r-2 border-solid border-slate-400 p-1">Kệ</th>
-                                                    <th className="border-0 border-r-2 border-solid border-slate-400 p-1">TẦNG</th>
-                                                    <th className="border-0 border-r-2 border-solid border-slate-400 p-1">SỨC CHỨA</th>
+                                                    <th className=" border-0 border-r-2 border-solid border-slate-400 p-1"></th>
+                                                    <th className=" border-0 border-r-2 border-solid border-slate-400 p-1">Kệ</th>
+                                                    <th className=" border-0 border-r-2 border-solid border-slate-400 p-1">TẦNG</th>
+                                                    <th className=" border-0 border-r-2 border-solid border-slate-400 p-1">SỨC CHỨA</th>
                                                     <th className="w-1/3 border-2 border-r-0 border-solid border-slate-400 p-1"></th>
                                                 </tr>
                                             </thead>
@@ -133,11 +136,11 @@ const AddRackAndPallet = ({ open, handleClose, stopPropagation, location, zoneNa
                                     </div>
 
                                     <div className="border-2 border-solid border-slate-400 px-2">
-                                        <h1 className="text-[16px] font-bold text-primaryColor">Thông tin</h1>
+                                        <h1 className="text-[16px] font-bold text-black">Thông tin</h1>
                                         <form onSubmit={submitHandler}>
                                             <div className="grid grid-cols-8 w-3/4 items-center mx-auto">
                                                 <div className="flex gap-3 col-span-5">
-                                                    <p className="form__label">Khu</p>
+                                                    <p className="form__label text-black">Khu</p>
                                                     <select 
                                                         name="zoneId" 
                                                         className="border-2 p-1 w-2/3 border-slate-300 focus:outline-none"
@@ -156,7 +159,7 @@ const AddRackAndPallet = ({ open, handleClose, stopPropagation, location, zoneNa
                                             <div className="mx-auto mt-3 w-3/4">
                                             <div className="grid grid-cols-2">
                                                 <div className="flex items-center justify-center mb-5">
-                                                    <p className="form__label w-1/6">Mã</p>
+                                                    <p className="form__label text-black w-1/6">Mã</p>
                                                     <input
                                                         type="text"
                                                         name={isPallet ? "pallet" : "rack"}
@@ -181,7 +184,7 @@ const AddRackAndPallet = ({ open, handleClose, stopPropagation, location, zoneNa
                                                     !isPallet && (
                                                       <div className="grid grid-cols-2 ga-3">
                                                         <div className="flex items-center mb-5">
-                                                            <p className="form__label w-1/4">Tầng</p>
+                                                            <p className="form__label text-black w-1/4">Tầng</p>
                                                             <input 
                                                                 type="number" 
                                                                 name="level" 
@@ -190,7 +193,7 @@ const AddRackAndPallet = ({ open, handleClose, stopPropagation, location, zoneNa
                                                             />
                                                         </div>
                                                         <div className="flex items-center mb-5">
-                                                            <p className="form__label w-1/3">Sức chức:</p>
+                                                            <p className="form__label text-black w-1/3">Sức chức:</p>
                                                             <input 
                                                                 type="number" 
                                                                 name="capacity" 
