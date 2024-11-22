@@ -3,21 +3,20 @@ import { BASE_URL } from "../../../config";
 import useFetchData from "../../Hook/userFecthData";
 import { FaPlus, FaSearch } from "react-icons/fa";
 import filterIcon from "../../assets/images/filterIcon.png";
-import Loading from "../../components/Loader/Loading";
-import Error from "../../components/Error/Error";
 import PromotionTable from "./PromotionTable";
 import PromotionAddDialog from "./promotionAddDialog";
-
-
 
 const Promotion = () => {
     const [query, setQuery] = useState('');
     const [debounceQuery, setDebounceQuery] = useState('');
     const [openDialog, setOpenDialog] = useState(false);
+    const [refetch, setRefetch] = useState(false); 
 
-    const { data:promotion, loading, error } = useFetchData(
-        `${BASE_URL}/promotion?query=${debounceQuery}`
+    const { data: promotion, loading, refetch: refetchData } = useFetchData(
+        `${BASE_URL}/promotion?query=${debounceQuery}`,
+        refetch 
     );
+
     useEffect(() => {
         const timeout = setTimeout(() => {
             setDebounceQuery(query);
@@ -25,21 +24,35 @@ const Promotion = () => {
         return () => clearTimeout(timeout);
     }, [query]);
 
-    const handleOpen = ()=>{
+    useEffect(() => {
+        if (!loading && refetch) {
+            refetchData();
+            setRefetch(false);  // Reset refetch state
+        }
+    }, [loading, refetch, refetchData]);
+
+    const handleOpen = () => {
         setOpenDialog(true);
-    }
-    const handleClose = ()=>{
+    };
+
+    const handleClose = () => {
         setOpenDialog(false);
-    }
+    };
+    const handleAddPromotion = async () => {
+        setOpenDialog(false);
+        setRefetch(true); 
+    };
+
+    
+
     return (
         <>
-        <section className="py-0 px-5 pt-4 flex justify-between">
-        <div className="text-left flex gap-4 relative group">
+            <section className="py-0 px-5 pt-4 flex justify-between">
+                <div className="text-left flex gap-4 relative group">
                     <h2 className="heading">Quản lý khuyến mãi</h2>
                     <div className="m-auto flex">
                         <button
                             className="border border-solid rounded-full text-white text-[12px] bg-black text-center p-1"
-                            // aria-label="Thêm đơn hàng"
                             onClick={handleOpen}
                         >
                             <FaPlus />
@@ -54,7 +67,7 @@ const Promotion = () => {
                         </div>
                     </div>
                 </div>
-            <div className="w-1/3 justify-end flex">
+                <div className="w-1/3 justify-end flex">
                     <div className="relative w-full max-w-lg">
                         <input
                             type="search"
@@ -71,38 +84,31 @@ const Promotion = () => {
                         <img src={filterIcon} className="w-6 h-6" alt="Filter" />
                     </div>
                 </div>
-
-        </section>
-        <section className="p-0">
+            </section>
+            <section className="p-0">
                 <div className="mt-1">
-                    {loading && <Loading />}
-                    {error && <Error message="Có lỗi xảy ra khi lấy dữ liệu sản phẩm" />}
-                    {!loading && !error && (
                         <div>
                             {promotion.length > 0 ? (
-                                <PromotionTable promotions={promotion} />
+                                <PromotionTable promotions={promotion} setRefetch={setRefetch} />
                             ) : (
                                 <p className="text-center text-gray-500">Không có sản phẩm nào được tìm thấy.</p>
                             )}
                         </div>
-                    )}
                 </div>
             </section>
             <PromotionAddDialog
                 open={openDialog}
                 handleClose={handleClose}
-                size='lg'
-                position='center'
+                size="lg"
+                position="center"
                 animate={{
                     mount: { x: 1, y: 0 },
                     unmount: { x: 0.9, y: -100 }
                 }}
-
-            
+                onPromotion={handleAddPromotion}
             />
-            
         </>
     );
-}
+};
 
 export default Promotion;

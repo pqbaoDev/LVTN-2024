@@ -65,39 +65,39 @@ const AddZone = ({ showModal, setShowModal, zone }) => {
             className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
           >
             <div className="relative w-2/3 my-5 mx-auto max-w-3xl" onClick={stopPropagation}>
-            
+
               {/* Nội dung modal */}
               <div className="border-0 p-5 bg-blue-500 rounded-lg shadow-lg relative flex flex-col w-full outline-none focus:outline-none">
                 {/* Header */}
-                
+
                 <div className="flex items-start justify-between border-b border-solid border-blueGray-200 rounded-t">
                   <div className="flex gap-2 items-center">
                     <img src={CategoryIcon} className="w-4 h-4" alt="Category Icon" />
                     <h3 className="text-[14px] font-normal">Danh sách khu vực</h3>
                   </div>
                   <button
-                  className="p-2 ml-auto  border-0  rounded-b-none hover:bg-red-500 hover:text-white text-black  float-right text-lg leading-none font-semibold outline-none focus:outline-none"
-                  onClick={() => setShowModal()}
-                >
-                  <span className="mx-auto">x</span>
-                </button>
-                  
-                  
+                    className="p-2 ml-auto  border-0  rounded-b-none hover:bg-red-500 hover:text-white text-black  float-right text-lg leading-none font-semibold outline-none focus:outline-none"
+                    onClick={() => setShowModal()}
+                  >
+                    <span className="mx-auto">x</span>
+                  </button>
+
+
                 </div>
 
                 {/* Body */}
                 <div className="relative  flex-auto">
-                <div className="border-b-2 px-2 py-1 bg-white">
-                                        <div className="items-center cursor-pointer" >
-                                            <div className="w-6" onClick={submitHandler}>
-                                            <img src={SaveIcon} className="w-6 h-6" alt="Save Icon" />
-                                            <p className="text-[12px] font-normal">Lưu</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                        <div className="h-3 bg-blue-500">
+                  <div className="border-b-2 px-2 py-1 bg-white">
+                    <div className="items-center cursor-pointer" >
+                      <div className="w-6" onClick={submitHandler}>
+                        <img src={SaveIcon} className="w-6 h-6" alt="Save Icon" />
+                        <p className="text-[12px] font-normal">Lưu</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="h-3 bg-blue-500">
 
-                                        </div>
+                  </div>
                   <div className="bg-white h-[300px]">
                     <table className="border-slate-400 border-t-2">
                       <thead className="bg-blue-300">

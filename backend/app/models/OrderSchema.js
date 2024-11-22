@@ -22,9 +22,15 @@ const OrderSchema = new mongoose.Schema({
             min: [1, 'Quantity must be at least 1']
         }
     }],
+    method:{type:String,required:true},
     orderID: {
         type: String,
-        required: true
+        required: true,
+        unique: true
+    },
+    salePrice:{
+        type: Number,
+        default: 0
     },
     totalAmount: {
         type: Number,
@@ -38,9 +44,15 @@ const OrderSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    voucher:
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Promotion",
+          default:null,
+        },
     payment:{
         type:String,
-        enum:['COD','Đã thanh toán'],
+        enum:['COD','Đã thanh toán','Thanh toán thất bại'],
         default:'COD'
     },
     status: {
@@ -57,8 +69,8 @@ OrderSchema.pre(/^find/, function(next) {
         select: 'name address phone'
     }).populate({
         path:'products.product',
-        select:'name photo manuFacture price discount'
-    }); // Thay đổi đây để populate đúng
+        select:'name photo manuFacture price discount type'
+    }).populate('voucher'); // Thay đổi đây để populate đúng
     next();
 });
 

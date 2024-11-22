@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import {  useState } from "react";
 import HashLoader from "react-spinners/HashLoader";
 
-const PromotionAddDialog = ({open,handleClose}) => {
+const PromotionAddDialog = ({open,handleClose,onPromotion}) => {
     const [loading,setLoading] = useState(false);
     const [formData,setFormData]= useState({
         name: '',
@@ -42,6 +42,7 @@ const PromotionAddDialog = ({open,handleClose}) => {
                 body: JSON.stringify(formData)
             })
             const result = await res.json();
+            onPromotion();
             handleClose();
             toast.success(result.message);
             if(!res.ok){

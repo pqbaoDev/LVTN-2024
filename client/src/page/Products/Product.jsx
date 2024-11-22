@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 // // import ProductTable from "./ProductTable";
@@ -16,12 +17,17 @@ import ProductDetail from "./productDetail";
 import ProductDeleteDialog from "./productDeleteDialog";
 import { toast } from "react-toastify";
 import { BiSort } from "react-icons/bi";
-// import FormatPrice from "../../utils/formatPrice";
 import ProductAddOrder from "./productAddOrder";
+import { useContext } from "react";
+import { authContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 
+
+
 const Product = () => {
+  const { user } = useContext(authContext);
+
     const [query, setQuery] = useState('');
     const [openProductAdd, setOpenProductAdd] = useState(false);
     const [openCategoryAdd, setOpenCategoryAdd] = useState(false);
@@ -30,14 +36,16 @@ const Product = () => {
     const [debounceCategory, setDebounceCategory] = useState('');
     const [debounceManuFacture, setDebounceManuFacture] = useState('');
 
+
     // Fetch data with debounced values
-    const { data: product } = useFetchData(
-        `${BASE_URL}/product?query=${debounceQuery}&categoryName=${debounceCategory}&manuFactureName=${debounceManuFacture}`
+    const { data: product, } = useFetchData(
+        `${BASE_URL}/product?query=${debounceQuery}&categoryName=${debounceCategory}&manuFactureName=${debounceManuFacture} `
     );
     const { data: category } = useFetchData(`${BASE_URL}/category`);
     const { data: manuFacture } = useFetchData(`${BASE_URL}/manuFacture`);
     const { data: location } = useFetchData(`${BASE_URL}/location`);
     
+  
 
     // Handle dialog open/close
     // const handleOpenProductAdd = () => setOpenProductAdd(true);
@@ -64,7 +72,7 @@ const Product = () => {
     const [checkedProducts, setCheckedProducts] = useState({});
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedIds, setSelectedIds] = useState([]);
-    const [addOrder,setAddOrder] = useState([])
+    const [addOrder, setAddOrder] = useState([])
 
 
 
@@ -93,34 +101,31 @@ const Product = () => {
     });
 
     const currentItems = sortedProducts.slice(indexOfFirstItem, indexOfLastItem);
-const productWithLocation = [];
+    const productWithLocation = [];
 
-// Lặp qua từng khu vực trong location
-Object.values(location).forEach(area => {
-  area.products?.forEach(prod => {
-    const foundProducts = currentItems?.filter(pro => pro._id === prod.product._id);
-    
-    foundProducts.forEach(foundProduct => {
-      // Tạo một đối tượng cho mỗi sản phẩm với thông tin vị trí
-      productWithLocation.push({
-        ...foundProduct,
-       type: area.type,
-        level: area.level,
-       rack: area.rack,
-        pallet: area.pallet
-      });
+    // Lặp qua từng khu vực trong location
+    Object.values(location).forEach(area => {
+        area.products?.forEach(prod => {
+            const foundProducts = currentItems?.filter(pro => pro._id === prod.product._id);
+
+            foundProducts.forEach(foundProduct => {
+                // Tạo một đối tượng cho mỗi sản phẩm với thông tin vị trí
+                productWithLocation.push({
+                    ...foundProduct,
+                    type: area.type,
+                    level: area.level,
+                    rack: area.rack,
+                    pallet: area.pallet
+                });
+            });
+
+        });
     });
-
-    console.log('Product:', prod.product);
-  });
-});
-
-console.log('Products with Locations:', productWithLocation);
-const totalPages = Math.ceil(productWithLocation.length / itemsPerPage);
+    const totalPages = Math.ceil(productWithLocation.length / itemsPerPage);
 
 
-    
-    
+
+
 
 
     const handlePageChange = (page) => {
@@ -165,24 +170,24 @@ const totalPages = Math.ceil(productWithLocation.length / itemsPerPage);
     const handleCloseDelete = () => {
         setOpenDialog(false);
         setSelectedIds([]);
-       
+
     };
-     // Get the user._id from the stored object
+    // Get the user._id from the stored object
 
     const handleSelectId = async (id) => {
         setSelectedIds(id);
         setAddOrder(null);
-        
+
         try {
             const token = localStorage.getItem('token'); // Lấy token từ localStorage
             const userData = JSON.parse(localStorage.getItem('user')); // Parse stored user object
             const userId = userData?._id;
-    
+
             // Kiểm tra userId và token
             if (!userId || !token) {
                 throw new Error('User ID or token is missing');
             }
-    
+
             const res = await fetch(`${BASE_URL}/cart/${userId}`, {
                 method: 'DELETE',
                 headers: {
@@ -190,67 +195,85 @@ const totalPages = Math.ceil(productWithLocation.length / itemsPerPage);
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             const result = await res.json();
-    
+
             if (!res.ok) {
                 throw new Error(result.message); // Ném lỗi nếu phản hồi không thành công
             }
             toast.success(result.message);
-    
+
         } catch (error) {
             toast.error(error.message); // Hiển thị thông báo lỗi cho người dùng
         }
-    
+
 
 
     };
+    
     const [loading, setLoading] = useState(false);
+    const [refetch, setRefetch] = useState(false);
+    const { data: carts, refetch: refetchData } = user._id ? useFetchData(`${BASE_URL}/cart/${user._id}`, refetch) : { data: null };
+
+    useEffect(() => {
+        if (!loading && refetch) {
+            // Khi refetch được kích hoạt và loading là false, gọi refetchData
+            refetchData();
+            setRefetch(false); // Reset refetch state sau khi gọi refetchData
+        }
+    }, [loading, refetch, refetchData]);
+    
+    const handleCart = async () => {
+        setRefetch(true); // Cập nhật refetch state để gọi lại refetchData
+    };
     const navigate = useNavigate();
-
-
+    
     const handleAddOrder = async (id) => {
         setAddOrder(id);
         setSelectedIds(null);
-        setLoading(true);
+        setLoading(true); // Set loading khi đang thêm sản phẩm vào giỏ
     
         try {
-            const userData = JSON.parse(localStorage.getItem('user'));
-            const userId = userData?._id;
-    
-            if (!userId) {
-                throw new Error('User not found, please login again');
-            }
+            const userId = user._id;
     
             const response = await fetch(`${BASE_URL}/cart`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userId, productId: id, quantity: 1 })
+                body: JSON.stringify({ userId, productId: id, quantity: 1 }),
             });
-    
+            console.log(response);
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to add order');
+                console.error('Error Response:', errorData);  // Log để kiểm tra chi tiết lỗi
+                throw new Error(errorData.message || 'Failed to add product to cart');
             }
+    
+           
     
             const { message } = await response.json();
             toast.success(message);
-            navigate('/product')
-            
+            console.log("count", 1)
+            navigate('/product');
+    
+            handleCart();
+    
         } catch (error) {
             toast.error(error.message || "Something went wrong!");
         } finally {
-            setLoading(false);
+            setLoading(false); // Dừng trạng thái loading khi quá trình hoàn thành
         }
     };
-    
-    
+
     
     
 
-    
+
+
+
+
+
 
     return (
         <>
@@ -358,7 +381,7 @@ const totalPages = Math.ceil(productWithLocation.length / itemsPerPage);
                                                         onChange={handleSelectChange}
                                                     />
                                                 </th>
-                                               
+
                                                 <th scope="col" className="   border-2 border-slate-400">
                                                     <div className="flex gap-x-4">
 
@@ -390,35 +413,35 @@ const totalPages = Math.ceil(productWithLocation.length / itemsPerPage);
                                             </tr>
                                         </thead>
                                         <tbody className="bg-slate-50">
-    {productWithLocation.map((item) => (
-        <tr key={item._id} className="text-[16px] text-center relative">
-            <td className="border-r-2 border-slate-400 pr-3">
-                <input
-                    type="checkbox"
-                    checked={checkedProducts[item._id] || false}
-                    name={item._id}
-                    onChange={handleSelectChange}
-                />
-            </td>
-            <td className="pr-3 border-r-2 border-slate-400" onClick={() => handleSelectId(item._id)}>{item.name}</td>
-            <td className="border-x-2 border-slate-400 text-center items-center min-w-24" onClick={() => handleSelectId(item._id)}>
-                <div
-                    className="border-2 w-14 h-6 border-black mx-auto"
-                    style={{ backgroundColor: item.color }}
-                ></div>
-            </td>
-            <td className="border-x-2 border-slate-400 text-center items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.size}</td>
-            <td className="border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.stock}</td>
-            <td className="border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.price}</td>
-            <td className="border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.category.name}</td>
-            <td className="border-r-2 border-slate-400 items-center" onClick={() => handleSelectId(item._id)}>{item.manuFacture.name}</td>
-            <td  className="border-r-2 border-slate-400 items-center" onClick={() => handleSelectId(item._id)}>
-            {item.type ==='rack' ? item.rack+'L'+item.level : item.pallet+'pallet' }
-            </td>
-            <td className="p-3 text-[16px] font-semibold cursor-pointer" onClick={() => handleAddOrder(item._id)}>+</td>
-        </tr>
-    ))}
-</tbody>
+                                            {productWithLocation.map((item) => (
+                                                <tr key={item._id} className="text-[16px] text-center relative">
+                                                    <td className="border-r-2 border-slate-400 pr-3">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={checkedProducts[item._id] || false}
+                                                            name={item._id}
+                                                            onChange={handleSelectChange}
+                                                        />
+                                                    </td>
+                                                    <td className="pr-3 border-r-2 border-slate-400" onClick={() => handleSelectId(item._id)}>{item.name}</td>
+                                                    <td className="border-x-2 border-slate-400 text-center items-center min-w-24" onClick={() => handleSelectId(item._id)}>
+                                                        <div
+                                                            className="border-2 w-14 h-6 border-black mx-auto"
+                                                            style={{ backgroundColor: item.color }}
+                                                        ></div>
+                                                    </td>
+                                                    <td className="border-x-2 border-slate-400 text-center items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.size}</td>
+                                                    <td className="border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.stock}</td>
+                                                    <td className="border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.price}</td>
+                                                    <td className="border-x-2 border-slate-400 items-center min-w-24" onClick={() => handleSelectId(item._id)}>{item.category.name}</td>
+                                                    <td className="border-r-2 border-slate-400 items-center" onClick={() => handleSelectId(item._id)}>{item.manuFacture.name}</td>
+                                                    <td className="border-r-2 border-slate-400 items-center" onClick={() => handleSelectId(item._id)}>
+                                                        {item.type === 'rack' ? item.rack + 'L' + item.level : item.pallet + 'pallet'}
+                                                    </td>
+                                                    <td className="p-3 text-[16px] font-semibold cursor-pointer" onClick={() => handleAddOrder(item._id)}>+</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
 
 
 
@@ -445,12 +468,12 @@ const totalPages = Math.ceil(productWithLocation.length / itemsPerPage);
                     </section>
                 </div>
                 <div className="col-span-3 p-2 border-l-2 border-0 border-slate-300 shadow-lg rounded-md">
-        {selectedIds?.length > 0 ? (
-            <ProductDetail productId={selectedIds} />
-        ) : (
-            <ProductAddOrder   />
-        )}
-    </div>
+                    {/* {selectedIds?.length > 0 ? (
+                        <ProductDetail productId={selectedIds} />
+                    ) : (
+                    )} */}
+                    <ProductAddOrder carts={carts} user={user} handleCart={handleCart} />
+                </div>
 
             </div>
             <ProductAddDialog

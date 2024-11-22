@@ -4,7 +4,7 @@ import { BASE_URL, token } from "../../../config";
 import { toast } from "react-toastify";
 import Quenstion from "../../assets/images/quetion.jpg";
 
-const PromotionDeleteDialog = ({ open, promotionIds, handleClose,stopPropagation  }) => {
+const PromotionDeleteDialog = ({ open, promotionIds, handleClose,stopPropagation,onRefetchPromotion  }) => {
   const handleDelete = async (e) => {
     e.preventDefault();
     try {
@@ -17,6 +17,7 @@ const PromotionDeleteDialog = ({ open, promotionIds, handleClose,stopPropagation
         body: JSON.stringify({ _id: promotionIds }),
       });
       const result = await res.json();
+      onRefetchPromotion();
       handleClose();
       toast.success(result.message);
       if (!res.ok) {

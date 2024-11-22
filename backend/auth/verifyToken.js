@@ -1,7 +1,8 @@
 const jwt =require("jsonwebtoken");
-const User = require("../app/models/UserSchema.js")
+const User = require("../app/models/UserSchema.js");
+const EmployeeModel = require("../app/models/employeeSchema.js");
 
-export const authenticate = async (req, res, next)=>{
+const authenticate = async (req, res, next)=>{
     const authToken = req.headers.authorization;
 
     if(!authToken){
@@ -23,22 +24,22 @@ export const authenticate = async (req, res, next)=>{
     }
 };
 
-export const restrict = roles=> async (req, res, next)=>{
+const restrict = roles=> async (req, res, next)=>{
     const userId = req.userId;
     
     let user;
 
     const users = await User.findById(userId);
-    // const doctor = await Doctor.findById(userId);
+    const employee = await EmployeeModel.findById(userId);
     // const admin = await Admin.findById(userId);
    
 
     if(users){
         user = users;
     }
-    // if(doctor){
-    //     user = doctor;
-    // }
+    if(employee){
+        user = employee;
+    }
     // if(admin){
     //     user = admin;
     // }
@@ -48,3 +49,4 @@ export const restrict = roles=> async (req, res, next)=>{
     next();
 
 };
+module.exports={authenticate,restrict}

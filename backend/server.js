@@ -1,5 +1,5 @@
 const app = require("./app");
-const config = require("./app/config");
+const config = require("./app/database");
 const Mongoose = require("./app/utils/mongodb.util");
 
 async function StartServer() {
@@ -17,6 +17,5 @@ async function StartServer() {
         process.exit();
         
     }
-    
 }
 StartServer();

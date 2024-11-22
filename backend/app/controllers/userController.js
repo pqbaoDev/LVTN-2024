@@ -79,5 +79,68 @@ const getUserProfile = async(req, res)=>{
         
     }
 };
+const saveVoucher = async (req, res) => {
+    const userId = req.params.userId; // Lấy userId từ params
+    const { voucherId } = req.body;  // Lấy voucherId từ body
 
-module.exports = {updateUser,deleteUser,getAllUser,getSingleUser,getUserProfile}
+    if (!voucherId) {
+        return res.status(400).json({
+            success: false,
+            message: "voucherId không được để trống",
+        });
+    }
+
+    try {
+        // Tìm người dùng theo userId, bỏ qua trường password
+        const user = await User.findById(userId).select('-password');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Người dùng không tồn tại",
+            });
+        }
+
+        // Kiểm tra nếu voucher đã tồn tại trong mảng vouchers của người dùng
+        if (!user.vouchers.includes(voucherId)) {
+            user.vouchers.push(voucherId);  // Thêm voucher vào mảng
+        }
+
+        const updatedUser = await user.save();  // Lưu người dùng với voucher đã thêm
+
+        res.status(200).json({
+            success: true,
+            message: "Lưu voucher thành công",
+            data: updatedUser,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi trong quá trình cập nhật",
+            error: error.message,
+        });
+    }
+};
+const getVoucherOfUser = async(req,res)=>{
+    const userId = req.params.userId;
+    try {
+        const vouchers = await User.findById(userId) ;
+        res.status(200).json({
+            success: true,
+            message: "Lưu voucher thành công",
+            data: vouchers.vouchers,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi trong quá trình cập nhật",
+            error: error.message,
+        });
+        
+    }
+}
+
+
+module.exports = {updateUser,deleteUser,getAllUser,getSingleUser,getUserProfile,saveVoucher,getVoucherOfUser}

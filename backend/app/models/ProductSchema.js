@@ -13,6 +13,7 @@ const ProductSchema = new mongoose.Schema(
     discount: { type: Number, min: 0, max: 100, default: 0 },
     price: { type: Number, required: true, min: 0 },
     stock: { type: Number, default: 1, min: 0 },
+    care:{type:Number,default:0},
     
 
     tags: [String],
