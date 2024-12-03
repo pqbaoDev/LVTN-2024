@@ -5,18 +5,25 @@ import { Link } from "react-router-dom";
 import FormatPrice from "../../utils/formatPrice";
 
 const Cart = ({ carts }) => {
-    const hasProducts = carts?.products?.length > 0;
+  const hasProducts = Array.isArray(carts?.products) && carts?.products.length > 0;
+  const productTrue = hasProducts ? carts.products.filter(car => car.product.alt === 'true' || car.product.alt === true) : [];
+   
 
     return (
-        <div>
-            <h2 className="text-slate-300 font-semibold px-5 leading-5 pt-5">Sản phẩm mới thêm</h2>
+        <div className="z-50">
+            <h2 className="text-slate-300 font-semibold px-5 leading-5 pt-5 mb-3">Sản phẩm mới thêm</h2>
 
             {hasProducts ? (
                 <div>
-                    {carts?.products.slice(0, 5).map(({ product, _id }) => (
+                    {productTrue?.slice(0, 5).map(({ product, _id }) => (
                         <div key={_id} className="px-5 leading-[62px] hover:bg-gray-100 flex items-center justify-center gap-3">
-                            <div className="w-[70px] border border-slate-200">
-                                <img src={product?.photo} alt={product?.name} />
+                            <div className="w-[70px] border border-slate-200 p-2">
+                                {
+                                    product.photo.slice(0,1).map((pho,idx)=>(
+                                        <img key={idx} src={pho} alt={product?.name} />
+
+                                    ))
+                                }
                             </div>
                             <p className="w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{product?.name}</p>
 
@@ -27,7 +34,7 @@ const Cart = ({ carts }) => {
                         </div>
                     ))}
                     <div className="flex justify-between mx-5 items-center">
-                        <p>{carts?.products.length} sản phẩm trong giỏ hàng</p>
+                        <p>{productTrue?.length} sản phẩm trong giỏ hàng</p>
                         <Link to='/cart'>
                             <div className="border rounded-lg px-3 bg-sky-500 text-white">
                                 <p className="leading-9">Xem giỏ hàng</p>

@@ -153,7 +153,7 @@ const Payment = () => {
             discount,
             totalSale,
             promotionId: vouchers?._id,
-            totalAmountAfterDiscount // Cập nhật tổng số tiền sau giảm giá
+            totalAmountAfterDiscount 
         }));
     }, [totalAmountAfterDiscount, discount, totalSale, vouchers]);
 
@@ -220,7 +220,7 @@ const Payment = () => {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        amount: totalAmountBeforeDiscount, // Ensure this value is correct
+                        amount: totalAmountAfterDiscount, // Ensure this value is correct
                         bankCode: 'NCB',
                         language: 'vn',
                         orderId: data.orderID, // orderID from the order response
@@ -326,7 +326,12 @@ const Payment = () => {
                                         <tr key={item.product._id} >
 
                                             <td className="p-4 flex items-center gap-4">
-                                                <img src={item.product.photo} alt={item.product.name} className="w-[50px] h-[50px] object-cover rounded" />
+                                            {
+                                                item.product.photo.slice(0,1).map((pho,idx)=>(
+                                                    <img key={idx} src={pho} className="w-[50px] h-[50px] object-cover rounded" alt={item?.product.name} />
+
+                                                ))
+                                            }
                                                 <span className="truncate w-[200px]">{item.product.name}</span>
                                             </td>
                                             <td className="p-4 text-center">{FormatPrice(item.product.price)}</td>

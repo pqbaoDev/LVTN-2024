@@ -51,7 +51,10 @@ const createCart = async (req, res) => {
 const getAll = async (req, res) => {
     try {
         const { userId } = req.params; 
-        const cart = await Cart.findOne({ user: userId });
+        const cart = await Cart.findOne({ 
+            user: userId, 
+            // products: { $elemMatch: { 'product.alt': true } } 
+        });
 
         if (!cart) {
             return res.status(404).json({ success: false, message: 'Giỏ hàng không tìm thấy cho người dùng này.' });

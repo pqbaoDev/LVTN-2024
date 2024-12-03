@@ -1,21 +1,23 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
+import { FaRegEdit,FaRegTrashAlt } from "react-icons/fa";
 import { FaPlusCircle } from "react-icons/fa";
-import Action from "../../components/Actions/Action";
-import menuDotsIcon from "../../assets/images/menu-dots.png";
 import EmployeeAddDialog from "./EmployeeAddDialog";
-import FormatPrice from "../../utils/formatPrice";
+import EmployeeEdit from "./EmployeeEdit";
+import EmployeeDeleteDialog from "./EmployeeDelete";
 
 const EmployeeTable = ({ employees }) => {
   // console.log("check", employees);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
-  const [openRowIndex, setOpenRowIndex] = useState(null);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = employees.slice(indexOfFirstItem, indexOfLastItem);
   const [openAdd, setOpenAdd] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [isEmployee,setIsEmployee] = useState('');
 
   const totalPages = Math.ceil(employees.length / itemsPerPage);
 
@@ -23,9 +25,7 @@ const EmployeeTable = ({ employees }) => {
     setCurrentPage(page);
   };
 
-  const handleMenuClick = (index) => {
-    setOpenRowIndex((prevIndex) => (prevIndex === index ? null : index));
-  };
+  
   const handleOpenAdd = () => {
     setOpenAdd(true);
   };
@@ -33,6 +33,25 @@ const EmployeeTable = ({ employees }) => {
   const handleCloseAdd = () => {
     setOpenAdd(false);
   };
+   
+    const handleOpenEdit = (pos)=>{
+        setIsEmployee(pos);
+        setOpenEdit(true);
+
+    }
+    const handleCloseEdit = ()=>{
+        setOpenEdit(false);
+        setIsEmployee(null);
+    }
+    const handleOpenDelete = (id)=>{
+        setIsEmployee(id);
+        setOpenDelete(true);
+
+    }
+    const handleCloseDelete = ()=>{
+        setOpenDelete(false);
+        setIsEmployee(null);
+    } 
   return (
     <div>
       <div className="mx-auto mr-[50px]">
@@ -45,8 +64,8 @@ const EmployeeTable = ({ employees }) => {
         </button>
       </div>
       <div className="mx-5">
-        <table className="w-full text-sm mt-5 text-center border-2 border-slate-300">
-          <thead className="text-xs uppercase border-b-2 border-b-slate-300">
+        <table className="w-full  mt-5 text-center ">
+          <thead className=" text-[16px] uppercase border-b-2 bg-blue-600 text-white border-b-slate-300">
             <tr>
               <th></th>
               <th scope="col" className="px-3 py-3">
@@ -67,14 +86,9 @@ const EmployeeTable = ({ employees }) => {
               <th scope="col" className="px-3 py-3">
                 Chức vụ
               </th>
-              <th scope="col" className="px-3 py-3">
-                Lương
-              </th>
-              <th scope="col" className="px-3 py-3">
-                Phụ cấp
-              </th>
+             
               <th scope="col" className="text-center">
-                Thao tác
+                
               </th>
             </tr>
           </thead>
@@ -93,22 +107,12 @@ const EmployeeTable = ({ employees }) => {
                 <td className="pr-3 py-4">{item.phone}</td>
                 <td className="pr-3 py-4">{item.email}</td>
                 <td className="pr-3 py-4">{item.address}</td>
-                <td className="pr-3 py-4">{item.position}</td>
-                <td className="pr-3 py-4">{FormatPrice(item.salary)}</td>
-                <td className="pr-3 py-4">{item.subsidy}</td>
-                <td className="relative">
-                  <img
-                    src={menuDotsIcon}
-                    className="w-4 h-4 mx-auto cursor-pointer"
-                    alt="Menu"
-                    onClick={() => handleMenuClick(index)} // Truyền index của hàng hiện tại
-                  />
-                  {openRowIndex === index && (
-                    <div className="absolute right-0 top-full mt-2 w-48 z-10 bg-white shadow-lg rounded-lg">
-                      <Action id={item._id} type={"employee"} />
-                    </div>
-                  )}
-                </td>
+                <td className="pr-3 py-4">{item.position?.name}</td>
+              
+                <td className="px-4 py-2 border-b flex gap-4">
+                                        <button className="text-blue-600 hover:text-blue-800 cursor-pointer" onClick={()=>handleOpenEdit(item._id)} ><FaRegEdit /></button>
+                                        <button className="text-red-600 hover:text-red-800 cursor-pointer" onClick={()=>handleOpenDelete(item._id)} ><FaRegTrashAlt /></button>
+                                    </td>
               </tr>
             ))}
           </tbody>
@@ -139,6 +143,8 @@ const EmployeeTable = ({ employees }) => {
           unmount: { scale: 0.9, y: -100 },
         }}
       />
+      <EmployeeEdit open={openEdit} handleClose={handleCloseEdit} employeeId={isEmployee}  />
+      <EmployeeDeleteDialog open={openDelete} handleClose={handleCloseDelete} employeeId={isEmployee} />
     </div>
   );
 };

@@ -47,7 +47,7 @@ StockInSchema.pre(/^find/, function(next) {
     })
     .populate({
         path: 'products.product',
-        select: 'name photo manuFacture price discount'
+        select: 'name photo manuFacture price discount size'
     })
     .populate({
         path: 'location', // Sửa lỗi để populate đúng location

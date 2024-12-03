@@ -1,9 +1,23 @@
 /* eslint-disable react/prop-types */
 
+import { useState } from "react";
 import { FormatDay } from "../../../utils/formatDay";
 import FormatPrice from "../../../utils/formatPrice";
+import Stockindetail from "./stockindetail";
 
 const TableStockIn = ({ stockIn }) => {
+    const [selectedStockIn,setSelectedStselectedStockIn] = useState('')
+  const [isOpen,setIsOpen] = useState(false);
+  const handleOpenDetail = (stockIn)=>{
+    setSelectedStselectedStockIn(stockIn);
+    setIsOpen(true);
+  }
+  const handleCloseDetail = ()=>{
+      setIsOpen(false);
+      setSelectedStselectedStockIn(null);
+  }
+  const stopPropagation = (e)=>e.stopPropagation()
+
     return (
         <div>
             <table className="p-0 ">
@@ -21,27 +35,39 @@ const TableStockIn = ({ stockIn }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {stockIn?.map((item, index) => {
-                        const totalPrice = item.products?.reduce((itemProduct, product) => {
-                            return itemProduct + product.quantity * product.product.price;
-                        }, 0) || 0;
+    {stockIn?.map((item, index) => {
+        const totalPrice = item.products?.reduce((itemProduct, product) => {
+            return itemProduct + product.quantity * product.product?.price;
+        }, 0) || 0;
 
-                        return (
-                            <tr key={index}>
-                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{index + 1}</td>
-                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2"></td>
-                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{item._id}</td>
-                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{FormatDay(item.date)}</td>
-                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{item.quantity}</td>
-                                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2">{FormatPrice(totalPrice)}</td>
-                                <td className="border-2 border-sky-300 items-center text-center bg-white py-1 px-2">{item.note}</td>
-                                <td className="border-2 border-sky-300 items-center text-center bg-white py-1 px-2">{item.status}</td>
-                                <td className="bg-white"></td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
+        const totalQuantity = item.products?.reduce((total, product) => {
+            return total + product.quantity;
+        }, 0) || 0;
+
+        return (
+            <tr key={index}>
+                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2" onClick={()=>handleOpenDetail(item)}>{index + 1}</td>
+                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2" onClick={()=>handleOpenDetail(item)}></td>
+                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2" onClick={()=>handleOpenDetail(item)}>{item._id}</td>
+                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2" onClick={()=>handleOpenDetail(item)}>{FormatDay(item.date)}</td>
+                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2" onClick={()=>handleOpenDetail(item)}>{totalQuantity}</td>
+                <td className="border-2 border-sky-300 uppercase items-center text-right bg-white py-1 px-2" onClick={()=>handleOpenDetail(item)}>{FormatPrice(totalPrice)}</td>
+                <td className="border-2 border-sky-300 items-center text-center bg-white py-1 px-2">{item.note}</td>
+                <td className="border-2 border-sky-300 items-center text-center bg-white py-1 px-2">{item.status}</td>
+                <td className="bg-white"></td>
+            </tr>
+        );
+    })}
+</tbody>
+
             </table>
+            <Stockindetail
+                open={isOpen}
+                handleClose = {handleCloseDetail}
+                stopPropagation={stopPropagation}
+                stockIn={selectedStockIn}
+
+            />
         </div>
     );
 }

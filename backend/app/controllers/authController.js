@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/UserSchema');
 const Employee = require('../models/employeeSchema');
-const Counter = require('../models/CounterSchema'); // Import mô hình Counter
 const jwt = require('jsonwebtoken');
+const PositionModel = require('../models/PositionSchema');
 
 // Hàm tạo token JWT
 const generateToken = user => {
@@ -12,30 +12,24 @@ const generateToken = user => {
         { expiresIn: '15d' }
     );
 };
-
-// Hàm để lấy giá trị ID mới
-const getNextSequenceValue = async (sequenceName) => {
-    try {
-        const sequenceDocument = await Counter.findByIdAndUpdate(
-            { _id: sequenceName },
-            { $inc: { sequence_value: 1 } },
-            { new: true, upsert: true } // Cập nhật và tạo mới nếu chưa có
-        );
-        return sequenceDocument.sequence_value;
-    } catch (error) {
-        console.error('Lỗi khi lấy giá trị tuần tự:', error);
-        throw error;
-    }
+const generateRandomEmployeeId = () => {
+    // Tạo một số ngẫu nhiên từ 10000 đến 99999
+    const randomId = Math.floor(10000 + Math.random() * 90000);
+    return `2002-${randomId}`;
 };
 
 
-const register = async (req, res) => {
-    const { email, password, name, role, photo, gender, address, phone } = req.body;
 
+
+
+const register = async (req, res) => {
+    const { email, password, name, role, photo, gender, address, phone, position } = req.body;
+    
     try {
+        const positions = await PositionModel.findById(position);
         let existingUser = null;
 
-        // Kiểm tra người dùng đã tồn tại trong cơ sở dữ liệu
+        // Kiểm tra người dùng đã tồn tại
         if (role === 'user') {
             existingUser = await User.findOne({ email });
         } else if (role === 'employee') {
@@ -52,6 +46,16 @@ const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         let newUser;
+        let userRole = role; // Mặc định theo giá trị role từ request
+
+        // Kiểm tra và gán role theo position
+        if (role === 'employee' && position) {
+            if (positions.name === 'Quản lý') {
+                userRole = 'employee00';
+            } else if (positions.name === 'Nhân viên kho') {
+                userRole = 'employee01';
+            }
+        }
 
         // Tạo người dùng mới
         if (role === 'user') {
@@ -63,10 +67,10 @@ const register = async (req, res) => {
                 address,
                 phone,
                 gender,
-                role
+                role: userRole
             });
         } else if (role === 'employee') {
-            const nextId = await getNextSequenceValue('employeeId');
+            const employeeId = generateRandomEmployeeId();
             newUser = new Employee({
                 name,
                 email,
@@ -75,8 +79,9 @@ const register = async (req, res) => {
                 gender,
                 address,
                 phone,
-                employeeId: `MS-${nextId}`,
-                role
+                employeeId,
+                role: userRole,
+                position
             });
         }
 
@@ -89,6 +94,7 @@ const register = async (req, res) => {
         res.status(500).json({ success: false, message: 'Lỗi máy chủ nội bộ, vui lòng thử lại' });
     }
 };
+
 
 const login = async (req, res) => {
     const { email } = req.body;

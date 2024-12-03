@@ -14,13 +14,16 @@ const updateUser = async (req,res)=>{
     }
 };
 const deleteUser = async (req,res)=>{
-    const id = req.params.id;
-
+    const {_id} = req.body;
     try {
-        const deleteUser = await User.findByIdAndDelete(
-            id,
-        ).select('-password');
-        res.status(200).json({success:true,message:"Xóa thành công",data: deleteUser});
+        if (!Array.isArray(_id) || _id.length === 0) {
+            return res.status(400).json({ success: false, error: 'Không có ID khách hàng nào được cung cấp!' });
+        }
+        const deleteUser = await User.deleteMany({ _id: { $in: _id } })
+        if (!deleteUser) {
+            return res.status(404).json({ success: false, message:` Người dùng ${id}  không tìm thấy` });
+        }
+        res.status(200).json({success:true,message:"Xóa thành công"});
     } catch (error) {
         res.status(500).json({success:false,message:"Xóa thất bại"});
         

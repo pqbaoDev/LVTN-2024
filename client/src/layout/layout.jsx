@@ -1,6 +1,7 @@
 // import Header from "../components/Header/Header";
 import Routers from "../routes/Routers";
 import LeftSideBar from "../components/Header/leftSideBar";
+import Header from "../components/Header/Header";
 
 const Layout = () => {
     return (
@@ -9,7 +10,9 @@ const Layout = () => {
                 <LeftSideBar />
 
             </div>
-            <main className=" h-screen w-full">
+            <main className=" h-screen w-full ml-52">
+            <Header />
+
                
                     <Routers />
                 

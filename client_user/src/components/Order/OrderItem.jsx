@@ -7,10 +7,14 @@ import { toast } from "react-toastify";
 import { BASE_URL,token } from "../../../config";
 import { useNavigate } from "react-router-dom";
 import OrderDetail from "./OrderDetail";
+import ReviewForm from "../../components/review/reviewForm";
+
 
 const OrderItem = ({ handleOpenDetail, checkedOrders, currentItems, handleSelectChange }) => {
     const [isOpen,setIsOpen] = useState(false);
     const [selectedId,setSelectedId] = useState('');
+    const [isOpenReview, setIsOpenReview] = useState(false);
+
     const [formData, setFormData] = useState({
         status: ''
     });
@@ -42,7 +46,7 @@ const OrderItem = ({ handleOpenDetail, checkedOrders, currentItems, handleSelect
 
         try {
             const res = await fetch(`${BASE_URL}/order/${orderId}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
@@ -108,7 +112,7 @@ const OrderItem = ({ handleOpenDetail, checkedOrders, currentItems, handleSelect
                                 <div className={`${getStatusClass(item.status)} pb-3`}>
                                     {item.status}
                                 </div>
-                                <div className="text-red-500 pb-3 cursor-pointer">
+                                <div className="text-red-500 pb-3 cursor-pointer" onClick={()=>setIsOpenReview(true)}>
                                 {
                                     item.status === 'Đã hoàn tất' ? '| Đánh giá':''
                                 }
@@ -118,13 +122,21 @@ const OrderItem = ({ handleOpenDetail, checkedOrders, currentItems, handleSelect
                                 <div key={pro._id} onClick={()=>handOpenOrderDetail(item._id)} className="text-[16px] cursor-pointer pt-2 text-center flex items-center justify-between">
                                     <div className="flex items-center justify-center">
                                         <div className="w-[82px]">
-                                            <img src={pro.product.photo} alt={pro.product.name} />
+                                        {
+                                                pro.product?.photo.slice(0,1).map((pho,idx)=>(
+                                                    <img key={idx} src={pho} className="w-[50px] h-[50px] object-cover rounded" alt={pro?.product?.name} />
+
+                                                ))
+                                            }
                                         </div>
                                         <div>
-                                            <div>{pro.product.name}</div>
+                                            <div>{`${pro.product.category.name} ${pro.product?.name} ${pro.product?.size}`}
+                                            </div>
                                             <div className="flex items-center justify-start">
-                                                <h3 className="text-[12px]">Phân loại hàng hóa:</h3>
-                                                <p>{pro.product.type?.size}</p>
+                                                <h3 className="text-[12px]">Phân loại hàng hóa: </h3>
+                                                <p className="text-[12px]">{pro.product?.size}
+                                                </p>
+                                                <div className="w-8 h-4 ml-2" style={{backgroundColor:(pro.product?.color)}}></div>
                                             </div>
                                             <p className="text-left">X{pro.quantity}</p>
                                         </div>
@@ -146,6 +158,8 @@ const OrderItem = ({ handleOpenDetail, checkedOrders, currentItems, handleSelect
                                             </div>
                                         )}
                                     </div>
+                                         <ReviewForm open={isOpenReview} setOpen={setIsOpenReview} orderID={item._id} productId={pro.product._id} />
+
                                 </div>
                             ))}
                             <div className="h-[144px] border-t border-slate-600 py-8">
@@ -238,12 +252,14 @@ const OrderItem = ({ handleOpenDetail, checkedOrders, currentItems, handleSelect
                                 </div>
                             </div>
                         </div>
+
                     ))}
                 </div>
             </div>
+
             {
                 open &&
-            <OrderDetail open={isOpen} handleClose={handCloseOrderDetail} orderId={selectedId} orders={currentItems}  />
+            <OrderDetail open={isOpen} handleClose={handCloseOrderDetail} orderId={selectedId} orders={currentItems} handleRePayment={handleRePayment}  />
             }
 
         </div>

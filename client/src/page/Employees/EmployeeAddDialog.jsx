@@ -1,223 +1,264 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { useState } from "react";
-import {  useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import uploadImageToCloudinary from "../../utils/uploadCloudinary";
 import { BASE_URL } from "../../../config";
-import { toast } from "react-toastify";
-import HashLoader from 'react-spinners/HashLoader';
-import closeIcon from "../../assets/images/close.png"
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import HashLoader from "react-spinners/HashLoader";
+import closeIcon from "../../assets/images/close.png";
 
-import {
-    Dialog,
-    DialogHeader,
-    DialogBody,
-    DialogFooter,
-  } from "@material-tailwind/react";
-const EmployeeAddDialog = ({open, handleClose})=>{
-    const [selectedFile, setSelectedFile] = useState(null)
-    const [previewURL, setPriviewURL] = useState("")
-    const [formData,setFormData] = useState({
-        name:'',
-        email:'',
-        password:'',
-        phone:'',
-        address:'',
-        photo: selectedFile,
-        role:'employee',
-        gender:'',
-        salary:'',
 
-    });
-    const navigate = useNavigate()
-    const [loading, setLoading] = useState(false);
-    const handleInputChange = e =>{
-        setFormData ({... formData, [e.target.name]: e.target.value});
-    }
-    const handleFileInputChange = async (event) =>{
-        const file = event.target.files[0];
+import useFetchData from "../../Hook/userFecthData";
+
+const EmployeeAddDialog = ({ open, handleClose }) => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewURL, setPreviewURL] = useState("");
+  const [loading, setLoading] = useState(false);
+  const {data:positions} = useFetchData(`${BASE_URL}/position`);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    address: "",
+    photo: "",
+    role: "employee",
+    gender: "",
+   
+    position: "", // Thêm trường position
+  });
+
+  const navigate = useNavigate();
+
+  
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileAvatar = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
         const data = await uploadImageToCloudinary(file);
-        
-        setPriviewURL(data.url);
         setSelectedFile(data.url);
-        setFormData({ ... formData, photo: data.url});
-
-       
+        setFormData({ ...formData, photo: data.url });
     }
-    const submitHandler = async (event)=>{
-       
-        event.preventDefault();
-         setLoading(true);
-         try {
-            const res = await fetch(`${BASE_URL}/auth/register`,{
-                method: 'post',
-                headers:{
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData),
-                
-            })
-            const {message} = await res.json();
+};
 
-            if(!res.ok){
-                throw new Error(message)
-            }
-            setLoading(false);
-            handleClose();
-            navigate('/employee')
-            toast.success(message);
-         } catch (error) {
-            toast.error(error.message);
-            setLoading(false);
-         }
-    };
-    
-    return(
-        <Dialog
-        size="lg"
-        open={open}
-        handler={handleClose}
-        animate={{
-        mount: { scale: 1, y: 0 },
-        unmount: { scale: 0.9, y: -100 },
-      }}
-      className="mx-auto max-w-lg border border-gray-300 shadow-2xl bg-white"
-    >
-    <form action="" onSubmit={submitHandler} >
+  const submitHandler = async (event) => {
+    event.preventDefault();
+    setLoading(true);
 
-      <DialogHeader className="  text-white justify-center text-[16px] bg-blue-400 rounded-t-lg">
-                <h3 className="text-headingColor text-[22px] leading-9 font-bold ">Thêm 
-                <span className="text-primaryColor"> Nhân viên </span></h3>
-                <div className=" absolute top-2 right-2">
-                        <img src={closeIcon} onClick={handleClose} className='w-5 h-5' alt="" />
-                        
-                </div>
-      </DialogHeader>
-      <DialogBody className="p-2">
-        <div className="max-w-[1170px] mx-auto">
-                
-            <div className="rounded-l-lg lg:pl-16 py-10">
-                    <div className="mb-5 items-center gap-3 flex">
-                        {selectedFile && <figure className="w-[60px] h-[60px]  rounded-full  border-2 border-solid border-primaryColor
-                        flex items-center justify-content">
-                            <img src={previewURL} alt="" className="w-full rounded-full"/>
-                        </figure>}
-                        <div className="relative w-[130px] h-[50px]">
-                            <input type="file"
-                            name="photo"
-                            id="customfile"
-                            accept=".jpg, .png"
-                            onChange={ handleFileInputChange}
-                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" />
-                            <label htmlFor="customfile"className="absolute top-0 left-0 w-full h-full
-                            flex items-center px-[0.75rem] py-[0.375rem] text-[15px] leading-6 overflow-hidden bg-[#0066ff46] text-headingColor
-                            font-semibold rounded-lg truncate    cursor-pointer">Thêm ảnh</label>
+    // Kiểm tra tính hợp lệ
+    const { name, email, password, phone, address, gender, position } =
+      formData;
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !phone ||
+      !address ||
+      !gender ||
+      !position
+    ) {
+      toast.error("Vui lòng nhập đầy đủ thông tin!");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const { message } = await res.json();
+
+      if (!res.ok) {
+        throw new Error(message);
+      }
+
+      toast.success(message);
+      handleClose();
+      navigate("/employee");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      
+      {open?(
+        <div
+        className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
+        onClick={handleClose}>
+           <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-1/2 h-[670px] my-6 mx-auto max-w-3xl">
+            <div className="border-2 border-slate-500 rounded-lg shadow-2xl relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                <form onSubmit={submitHandler}>
+                <div className="border-b border-gray-800 p-5">
+                                <h2 className="text-[20px] font-normal">Thêm nhân viên</h2>
+                            </div>
+                  <div className="p-2">
+                    <div className="max-w-[1170px] mx-auto">
+                      <div className="rounded-l-lg lg:pl-16 py-10">
+                        <div className=" border-2 w-1/2 border-dashed border-blue-600 p-2  mx-auto">
+                        {formData.photo && (
+                            <figure className="w-[90px]   flex items-center justify-center mx-auto">
+                                <img src={formData.photo} alt="User Avatar" className=" w-full "  />
+                            </figure>
+                        )}
+                        <div className="flex items-center justify-center">
+                            <div className="w-[170px] mx-auto">
+                            <input
+                                type="file"
+                                name="photo"
+                                id="customfile"
+                                accept=".jpg, .png"
+                                onChange={handleFileAvatar}
+                                className="  opacity-0 cursor-pointer"
+                            />
+                            <label
+                                htmlFor="customfile"
+                                className=" border px-3 py-2  ml-[40px]  overflow-hidden  text-headingColor  truncate cursor-pointer"
+                            >
+                                Chọn Avatar
+                            </label>
+                            <p className="text-justify ml-[px] text-[14px] text-slate-500 italic mt-3">Dụng lượng file tối đa 1 MB
+                            Định dạng:.JPEG, .PNG</p>
                         </div>
+                        </div>
+                    </div>
+                        <div className="mb-5">
+                          <input
+                            type="text"
+                            name="name"
+                            placeholder="Họ và tên"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            className="w-full pr-4 py-3 text-[16px] bord focus:outline-none border-b border-solid border-[#0066ff61]"
+                            required
+                          />
+                        </div>
+                        <div className="mb-5">
+                          <input
+                            type="email"
+                            name="email"
+                            placeholder="Địa chỉ email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            className="w-full pr-4 py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none"
+                            required
+                          />
+                        </div>
+                        <div className="mb-5">
+                          <input
+                            type="password"
+                            name="password"
+                            placeholder="Mật khẩu"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            className="w-full pr-4 py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none"
+                            required
+                          />
+                        </div>
+                        <div className="mb-5">
+                          <input
+                            type="number"
+                            name="phone"
+                            placeholder="Số điện thoại"
+                            value={formData.phone}
+                            onChange={handleInputChange}
+                            className="w-full pr-4 py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none"
+                            required
+                          />
+                        </div>
+                        <div className="mb-5">
+                          <input
+                            type="text"
+                            name="address"
+                            placeholder="Địa chỉ"
+                            value={formData.address}
+                            onChange={handleInputChange}
+                            className="w-full pr-4 py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none"
+                            required
+                          />
+                        </div>
+                        <div className="mb-5">
+                          <select
+                            name="gender"
+                            value={formData.gender}
+                            onChange={handleInputChange}
+                            className="w-full pr-4 py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none"
+                            required
+                          >
+                            <option value="">Chọn giới tính</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                          </select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mt-3">
+                          <select
+                            name="position"
+                            value={formData.position}
+                            onChange={handleInputChange}
+                            className="form__input"
+                            required
+                          >
+                            <option value="">Chọn chức vụ</option>
+                            {positions.map((position) => (
+                              <option key={position._id} value={position._id}>
+                                {position.name}
+                              </option>
+                            ))}
+                          </select>
+                          
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end items-start gap-3 mb-5 mr-2">
+                 < button
+                      
+                      onClick={handleClose}
+                      className={`w-1/4 text-red-600 border  text-[18px] leading-[30px] rounded-lg px-4 py-3 ${
+                        loading
+                          ? "border-gray-400 cursor-not-allowed"
+                          : "border-red-600"
+                      }`}
+                    >
+                      {loading ? <HashLoader size={20} color="#ffffff" /> : "Đóng"}
+                    </button>
+                  
 
-                    </div>
-                    <div className="mb-5">
-                        <input type="text" name="name" placeholder="Họ và tên" 
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="w-full pr-4  py-3 text-[16px] bord focus:outline-none border-b border-solid border-[#0066ff61]" 
-                        id="" required />
-                    </div>
-                    <div className="mb-5">
-                        <input type="email" name="email" placeholder="Địa chỉ email" 
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="w-full pr-4  py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none
-                        placeholder:text-textColor  cursor-pointer" 
-                        id="" required/>
-                    </div>
-                    <div className="mb-5 ">
-                            <input 
-                                type="number" 
-                                name="phone" 
-                                placeholder="Nhập SĐT" 
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                id='' required
-                                className="w-full pr-4 py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none placeholder:text-textColor cursor-pointer" 
-                            />
-                    </div>
-                    <div className="mb-5">
-                        <input type="text" name="address" placeholder="Địa chỉ" 
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        className="w-full pr-4  py-3 text-[16px] bord focus:outline-none border-b border-solid border-[#0066ff61]" 
-                        id="" required />
-                    </div>
-                    <div className="mb-5">
-                        <input type="password" name="password" placeholder="Mật khẩu" 
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        className="w-full pr-4  py-3 text-[16px] border-b border-solid border-[#0066ff61] focus:outline-none
-                        placeholder:text-textColor  cursor-pointer" 
-                        id="" required/>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <label htmlFor=""
-                            className="text-headingColor font-bold text-[16px] leading-7">
-                            Giới tính:
-                            <select 
-                                name="gender" 
-                                className="text-textColor font-semibold text-[15px] leading-7 px-4 py-3 focus:outline-one"
-                                id=""
-                                value={formData.gender}
-                        onChange={handleInputChange}>
-                                    <option value="">Chọn giới tính</option>
-                                    <option value="Nam">Nam</option>
-                                    <option value="Nữ">Nữ</option>
-                                    <option value="Khác">Khác</option>
-                            </select>
-                        </label>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mt-3">
-                        <label htmlFor="">
-                            <p className="form__label">Chức vụ:</p>
-                            <input 
-                                type="text" 
-                                name="subsidy" 
-                                placeholder="Chức vụ" 
-                                value={formData.subsidy}
-                                onChange={handleInputChange}
-                                id='' required
-                                className="form__input" 
-                            />
-                        </label>
-                        <label htmlFor="">
-                            <p className="form__label">Lương:</p>
-                            <input 
-                                type="number" 
-                                name="salary" 
-                                placeholder="Nhập Lương" 
-                                value={formData.salary}
-                                onChange={handleInputChange}
-                                id='' required
-                                className="form__input" 
-                            />
-                        </label>
-                    </div>
-
-                    
-                    
+                    <button
+                      disabled={loading}
+                      type="submit"
+                      className={`w-1/4 text-white text-[18px] leading-[30px] rounded-lg px-4 py-3 ${
+                        loading
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-primaryColor"
+                      }`}
+                    >
+                      {loading ? <HashLoader size={20} color="#ffffff" /> : "Đăng ký"}
+                    </button>
+                  </div>
+                </form>
             </div>
-              
-        </div>
-      </DialogBody>
-      <DialogFooter>
-            <div className="m-0">
-                <button 
-                disabled = {loading && true}
-                type="submit" className="w-full bg-primaryColor  text-white text-[18px] leading-[30px] rounded-lg px-4 py-3">
-                    {loading ? <HashLoader size={35} color="#ffffff"/>:'Đăng ký'}
-                </button>
-            </div>
-            
-      </DialogFooter>
-      </form>
+          </div>
+      </div>):null}
+    </>
+  );
+};
 
-    </Dialog>
-    )
-}
 export default EmployeeAddDialog;

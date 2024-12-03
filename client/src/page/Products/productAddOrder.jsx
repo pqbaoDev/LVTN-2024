@@ -87,7 +87,7 @@ const ProductAddOrder = ({carts,user,handleCart}) => {
     products: [],
     userId: '',
     totalAmountAfterDiscount,
-    employeeId: user._id,
+    employeeId: user?._id,
     discount,
     totalSale,
     promotionId: vouchers?._id,

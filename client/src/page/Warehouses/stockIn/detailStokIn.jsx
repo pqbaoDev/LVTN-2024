@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 
 import { useEffect, useState } from "react";
@@ -10,10 +11,10 @@ import { AiOutlineDelete } from "react-icons/ai";
 
 const DetailStokIn = ({ zone, submitHandler, formData, setFormData, location }) => {
     const [selectZoneId, setSelectedZoneId] = useState('');
-    const { data: category = [] } = useFetchData(`${BASE_URL}/category`);
-    const { data: manuFacture = [] } = useFetchData(`${BASE_URL}/manuFacture`);
+    const { data: product = [] } = useFetchData(`${BASE_URL}/productTemp`);
+    // const { data: category = [] } = useFetchData(`${BASE_URL}/category`);
+    // const { data: manuFacture = [] } = useFetchData(`${BASE_URL}/manuFacture`);
     const [isPallet, setIsPallet] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalImage, setModalImage] = useState("");
 
@@ -32,26 +33,27 @@ const DetailStokIn = ({ zone, submitHandler, formData, setFormData, location }) 
         }));
     };
 
-    const handleFileInputChange = async (event, index) => {
-        const files = event.target.files; // Lấy tất cả các file
-        const updatedProducts = [...formData.products]; // Tạo bản sao của mảng products
+    // const handleFileInputChange = async (event, index) => {
+    //     const files = event.target.files; // Lấy tất cả các file
+    //     const updatedProducts = [...formData.products]; // Tạo bản sao của mảng products
     
-        // Nếu có file, tải lên ảnh đầu tiên và lưu URL
-        if (files.length > 0) {
-            const file = files[0]; // Lấy file đầu tiên
-            const data = await uploadImageToCloudinary(file);
-            setSelectedFile(data.url)
-            updatedProducts[index].photo = data.url; // Lưu URL vào trường photo
-        }
+    //     // Nếu có file, tải lên ảnh và lưu URL vào mảng photo của sản phẩm
+    //     if (files.length > 0) {
+    //         const newUrls = await Promise.all(
+    //             Array.from(files).map(file => uploadImageToCloudinary(file)) // Tải lên từng file
+    //         );
+            
+    //         // Lưu tất cả URL ảnh vào mảng photo của sản phẩm
+    //         const newPhotos = newUrls.map(urlData => urlData.url);
+    //         updatedProducts[index].photo = [...updatedProducts[index].photo, ...newPhotos]; // Cập nhật mảng ảnh
     
-        // Cập nhật formData với mảng products mới
-        setFormData(prevFormData => ({
-            ...prevFormData,
-            products: updatedProducts
-        }));
-    };
-    
-    
+    //         // Cập nhật formData với mảng products mới
+    //         setFormData(prevFormData => ({
+    //             ...prevFormData,
+    //             products: updatedProducts
+    //         }));
+    //     }
+    // };
 
     const openModal = (imageUrl) => {
         setModalImage(imageUrl);
@@ -89,22 +91,53 @@ const DetailStokIn = ({ zone, submitHandler, formData, setFormData, location }) 
         }));
     };
 
-    const handleProductChange = (index, name, value) => {
-        const updatedProducts = formData.products.map((product, i) =>
-            i === index ? { ...product, [name]: value } : product
-        );
+    const handleProductChange = (index, name, value, subField = null) => {
+        const updatedProducts = formData.products.map((product, i) => {
+            if (i === index) {
+                if (subField && name === 'color') {
+                    return {
+                        ...product,
+                        color: { ...product.color, [subField]: value }
+                    };
+                }
+                return { ...product, [name]: value };
+            }
+            return product;
+        });
         setFormData({ ...formData, products: updatedProducts });
     };
+    
 
     const addProducts = (e) => {
         e.preventDefault();
-        addItem({quantity: 0, name: '', manuFacture: '', category: '', color: '', size: '', discount: '', price: '',photo:'' });
+        addItem({quantity: 0, name: '', manuFacture: '', category: '', color: { hex: '', name: '' }, size: '', discount: '', price: '', photo: [] });
     };
 
     const deleteProduct = (e, index) => {
         e.preventDefault();
         deleteItem('products', index);
     };
+    const handleSelectedProductChange = (index, productId) => {
+        const selectedProduct = product.find(prod => prod._id === productId);
+    
+        if (selectedProduct) {
+            const updatedProducts = formData.products.map((prod, i) => {
+                if (i === index) {
+                    return {
+                        ...prod,
+                        _id: productId  // Chỉ lưu _id của sản phẩm đã chọn
+                    };
+                }
+                return prod;
+            });
+    
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                products: updatedProducts
+            }));
+        }
+    };
+    
 
 
     return (
@@ -195,147 +228,132 @@ const DetailStokIn = ({ zone, submitHandler, formData, setFormData, location }) 
                 <div className="font-bold mb-2">
                     <h2>Thông tin sản phẩm:</h2>
                 </div>
-                {formData.products.map((item,index)=>(
-                    <div key={index} className="mx-5 mb-5">
+                {formData.products.map((item, index) => {
+    // Tìm sản phẩm từ mảng product dựa trên productId
+    const selectedProduct = product.find(prod => prod._id === item._id);
+
+    return (
+        <div key={index} className="mx-5 mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Chọn sản phẩm:</label>
+                    <select
+                        name="selectedProduct"
+                        className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        onChange={(e) => handleSelectedProductChange(index, e.target.value)}
+                        value={item._id || ''}  // Đảm bảo rằng giá trị là productId
+                    >
+                        <option value="">Chọn sản phẩm</option>
+                        {product.map((prod) => (
+                            <option key={prod._id} value={prod._id}>
+                                {prod.category.name} {prod.name} {prod.size}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+            
+            {/* Hiển thị thông tin sản phẩm nếu sản phẩm đã được chọn */}
+            {selectedProduct && (
+                <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                    <div>
-                                <label className="block text-sm font-medium text-gray-700">Danh mục:</label>
-                                <select
-                                    name="category"
-                                    className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    value={item.category}
-                                    onChange={e => handleProductChange(index, 'category', e.target.value)}
-                                >
-                                    <option value="">Chọn danh mục</option>
-                                    {category.map(cat => (
-                                        <option key={cat._id} value={cat._id}>{cat.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Thương hiệu:</label>
-                                <select
-                                    name="manuFacture"
-                                    className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    value={item.manuFacture}
-                                    onChange={e => handleProductChange(index, 'manuFacture', e.target.value)}
-                                >
-                                    <option value="">Chọn thương hiệu</option>
-                                    {manuFacture.map(manu => (
-                                        <option key={manu._id} value={manu._id}>{manu.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                    </div>
-
-                    <div className="grid grid-cols-12 mb-6">
-                        <div className="mb-5 flex items-center justify-center col-span-2 col-start-3">
-                            {item.photo && (
-                                <figure className="w-[130px] shadow-xl p-2 border-2 border-solid border-primaryColor flex items-center justify-center">
-                                    <img
-                                        src={item.photo}
-                                        alt="Uploaded product"
-                                        className="toZoom"
-                                        onClick={() => openModal(item.photo)}
-                                    />
-                                </figure>
-                            )}
-                            <div className="relative">
-                                <input
-                                    type="file"
-                                    name="photo"
-                                    id={`file-input-${index}`}
-                                    accept=".jpg, .png"
-                                    onChange={(e) => handleFileInputChange(e, index)}
-                                    className="absolute bottom-0 left-10 w-full h-full opacity-0 cursor-pointer"
-                                />
-                                <label
-                                    htmlFor={`file-input-${index}`}
-                                    className="absolute top-9 -left-28 flex items-center px-[0.75rem] py-[0.375rem] text-[15px] leading-6 overflow-hidden bg-primaryColor text-white font-semibold rounded-lg truncate cursor-pointer"
-                                >
-                                    {selectedFile || item.photo ? 'Thay đổi' : 'Tải ảnh lên'}
-                                </label>
-                            </div>
-                        </div>
-                        <div className="col-span-7 col-start-7">
-                        <label className="block text-sm font-medium text-gray-700">Tên sản phẩm:</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    value={item.name}
-                                    onChange={e => handleProductChange(index, 'name', e.target.value)}
-                                />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6 mb-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Màu:</label>
+                            <label className="block text-sm font-medium text-gray-700">Tên sản phẩm:</label>
                             <input
-                                type="color"
-                                name="color"
-                                className="mt-1 p-2 w-full h-10 border border-gray-300 rounded-md"
-                                value={item.color}
-                                onChange={e => handleProductChange(index, 'color', e.target.value)}
+                                type="text"
+                                name="name"
+                                className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                value={selectedProduct.name}
+                                readOnly
                             />
                         </div>
-
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Thương hiệu:</label>
+                            <input
+                                type="text"
+                                name="manuFacture"
+                                className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                value={selectedProduct.manuFacture.name}
+                                readOnly
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Danh mục:</label>
+                            <input
+                                type="text"
+                                name="category"
+                                className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                value={selectedProduct.category.name}
+                                readOnly
+                            />
+                        </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Kích thước:</label>
                             <input
                                 type="text"
                                 name="size"
                                 className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                value={item.size}
-                                onChange={e => handleProductChange(index, 'size', e.target.value)}
+                                value={selectedProduct.size}
+                                readOnly
                             />
                         </div>
                     </div>
-
                     <div className="grid grid-cols-2 gap-6 mb-6">
                         <div>
-                        <label className="block text-sm font-medium text-gray-700">Số lượng:</label>
-                                <input
-                                    type="number"
-                                    name="quantity"
-                                    className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    value={item.quantity}
-                                    onChange={e => handleProductChange(index, 'quantity', e.target.value)}
-                                />
+                            <label className="block text-sm font-medium text-gray-700">Mã màu:</label>
+                            <input
+                                type="color"
+                                name="colorHex"
+                                className="mt-1 p-2 w-full h-10 border border-gray-300 rounded-md"
+                                value={selectedProduct.color?.hex || ''}
+                                readOnly
+                            />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Giá:</label>
-
+                            <label className="block text-sm font-medium text-gray-700">Tên màu:</label>
                             <input
-                                type="number"
-                                name="price"
-                                placeholder="Giá"
+                                type="text"
+                                name="colorName"
+                                placeholder="Tên màu"
                                 className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                value={item.price}
-                                onChange={e => handleProductChange(index, 'price', e.target.value)}
+                                value={selectedProduct.color?.name || ''}
+                                readOnly
                             />
                         </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Ghi chú:</label>
+                </>
+            )}
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Số lượng:</label>
+                <input
+                    type="number"
+                    name="quantity"
+                    className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    value={item.quantity}
+                    onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Giá:</label>
+                <input
+                    type="number"
+                    name="price"
+                    className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    value={item.price}
+                />
+            </div>
+            <div>
+                <button onClick={e => deleteProduct(e, index)} className="bg-red-600 rounded-full text-white text-[22px] m-auto mb-[30px] cursor-pointer">
+                    <AiOutlineDelete />
+                </button>
+            </div>
+        </div>
+    );
+})}
 
-                        <input
-                            type="text"
-                            name="note"
-                            placeholder="ghi chú"
-                            className="mt-1 p-3 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            value={item.note}
-                            onChange={e => handleProductChange(index, 'note', e.target.value)}
-                        />
-                    </div>
-                    <div >
 
-                                <button  onClick={e => deleteProduct(e, index)} className="bg-red-600 rounded-full text-white text-[22px] m-auto mb-[30px] cursor-pointer">
-                                        <AiOutlineDelete />
-                                </button>
-                            </div>
-                </div> ))}
                 <button onClick={addProducts} className="bg-[#000] py-2 px-5 rounded text-white h-fit cursor-pointer">Thêm sản phẩm</button>
                 
                 

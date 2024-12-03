@@ -2,6 +2,7 @@ const Location = require("../models/LocationSchema");
 const ProductModel = require("../models/ProductSchema");
 const StockInSModel = require("../models/StockInSchema");
 const ZoneModel = require("../models/zoneSchema");
+const ProductTempSchema = require("../models/ProductTempSchema.js")
 const moment = require('moment');
 
 
@@ -20,6 +21,7 @@ const createStockIn = async (req, res) => {
             products // Mảng sản phẩm từ client
         } = req.body;
 
+
         // Kiểm tra location
         const location = await Location.findOne({
             type,
@@ -34,48 +36,70 @@ const createStockIn = async (req, res) => {
 
         let stockInProduct = [];
         let newProducts = []; // Để lưu sản phẩm mới tạo nếu cần xóa sau này
-        const locationProductsMap = new Map(location.products.map(p => [p.product.toString(), p]));
+       
 
         for (const item of products) {
-            const { name, manuFacture, category, photo, color, size, discount, price } = item;
-            let {quantity}=item
+            let {quantity,_id}=item
+            const productTemp = await ProductTempSchema.findById(_id)
+            const { name, manuFacture, category, photo, color, size, discount, price } = productTemp;
+            if(productTemp.stock < quantity){
+                return res.status(400).json({success:false,message:'Số lượng sản phẩm không đủ'})
+            }
+           productTemp.stock -= quantity;
+           await productTemp.save();
+          
+          
 
             // Kiểm tra sản phẩm đã tồn tại chưa
-            let product = await ProductModel.findOne({ name });
+            let product = await ProductModel.findOne({ name:name,size:size,"color.hex": color.hex, });
 
             if (product) {
                 if (typeof quantity !== 'number') {
                     quantity = Number(quantity); 
                 }
                 product.stock += quantity; 
-                await product.save(); 
+                product.locations.push(location._id); // Thêm vị trí vào mảng locations của sản phẩm
+                await product.save();
             } else {
-                // Tạo sản phẩm mới
+                // Tạo sản phẩm mới và thêm vào mảng locations
                 product = new ProductModel({
                     name,
                     manuFacture,
                     category,
                     photo,
-                    color,
+                    color: {
+                        hex: color.hex,
+                        name: color.name,
+                    },
                     size,
                     discount,
                     price,
                     stock: quantity,
                     tags,
                     rating,
+                    locations: [location._id], // Thêm vị trí vào mảng locations
                 });
                 await product.save();
                 newProducts.push(product); // Thêm vào danh sách mới tạo
             }
 
             stockInProduct.push({ product: product._id, quantity });
-
-            // Cập nhật số lượng sản phẩm trong location
-            if (locationProductsMap.has(product._id.toString())) {
-                locationProductsMap.get(product._id.toString()).quantity += quantity;
+            const existingProductInLocation = location.products.find(p => p.product );
+            console.log(existingProductInLocation)
+            if (existingProductInLocation) {
+                // Nếu sản phẩm đã tồn tại trong location, cập nhật số lượng
+                existingProductInLocation.quantity += quantity;
+                // return res.status(400).json({success:false,message:'true'})
+ 
             } else {
+                // Nếu sản phẩm chưa tồn tại trong location, thêm mới vào mảng products của location
+               
                 location.products.push({ product: product._id, quantity });
+                // return res.status(400).json({success:false,message:'false'})
+ 
             }
+
+            
         }
 
         // Tạo mã stockIn cho ngày hiện tại

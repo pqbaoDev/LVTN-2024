@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get("/" ,getAllUser);
 router.get("/:id" ,getSingleUser);
-router.delete("/:id" ,deleteUser);
+router.delete("/" ,deleteUser);
 router.put("/:id" ,updateUser);
 router.patch("/voucher/:userId",authenticate,restrict('user'),saveVoucher);
 router.get("/voucher/:userId" ,authenticate,restrict('user'),getVoucherOfUser);

@@ -22,7 +22,7 @@ const OrderTable = ({orders}) => {
                         orders.map((item,index)=>(
                             <tr key={index}>
                                 <td>{item.orderID}</td>
-                                <td>{item.name}</td>
+                                <td>{item.user.name}</td>
                                 <td className={`${item.status === 'Đang xử lý' ? 'text-green-500'
                                     :item.status === 'Chờ thanh toán' ? 'text-orange-500'
                                     :item.status === 'Đơn hủy' ? 'text-red-500'

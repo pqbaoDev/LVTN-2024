@@ -9,7 +9,10 @@ import { useState,useEffect } from "react";
 const User = () => {
     const [query,setQuery] =  useState('');
     const [debounceQuery,setDebounceQuery]=useState('');
-    const {data:users,loading,error}=userFecthData(`${BASE_URL}/user?query=${debounceQuery}`);
+    const [refetch, setRefetch] = useState(false); 
+
+    const {data:users,loading,error,refetch: refetchData}=userFecthData(`${BASE_URL}/user?query=${debounceQuery}`,refetch);
+
 
     const HandleSearch =()=>{
         setQuery(query.trim());
@@ -19,7 +22,13 @@ const User = () => {
             setDebounceQuery(query);
         },500);
         return ()=>clearTimeout(timeOut);
-    },[query])
+    },[query]);
+    useEffect(() => {
+        if (!loading && refetch) {
+            refetchData();
+            setRefetch(false);  // Reset refetch state
+        }
+    }, [loading, refetch, refetchData]);
     return (
         <>
         <section className="py-0 px-5 pt-4 flex justify-between" >
@@ -56,7 +65,7 @@ const User = () => {
             {error && <Error/>}
             {!loading && !error && <div>
 
-                <UserTable  users={users} />
+                <UserTable  users={users.filter(u=>u.role !== 'admin')} setRefetch={setRefetch} />
             </div>
             
             }

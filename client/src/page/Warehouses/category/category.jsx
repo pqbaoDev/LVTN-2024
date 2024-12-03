@@ -109,7 +109,7 @@ const Category = () => {
         <div>
             <div className="text-left p-5 w-1/3 flex gap-2 cursor-pointer">
                 <img src={whouse} className="w-6 h-6" alt="" />
-                <Link to={`/warehouse`} className="heading w-[150px]">Quản lý Kho</Link>
+                <Link to={`/warehouse`} className="heading ">Quản lý Danh Mục</Link>
                 
             </div>
             <div className=" text-center items-center">

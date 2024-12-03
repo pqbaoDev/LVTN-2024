@@ -24,7 +24,7 @@ router.get("/users/:userId", getOneOrderWithUserId);
 router.get("/vnpay_ipn", vnpayIPN);
 router.get("/vnpay_return", vnpayReturn);
 router.get("/:id", getOneOrder);
-router.put("/:id", updateOrder);
+router.patch("/:id", updateOrder);
 router.delete("/:id", deleteOrder);
 router.delete("/", deleteManyOrder);
 

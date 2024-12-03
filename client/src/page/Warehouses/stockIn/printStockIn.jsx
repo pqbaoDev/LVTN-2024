@@ -7,9 +7,7 @@ import { FormatDay } from "../../../utils/formatDay";
 const PrintStockIn = ({ stockIn }) => {
     let totalQuantity = 0;
     let totalPrice = 0; // Thêm biến để tính tổng giá trị
-    const latestStockIn = stockIn
-        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
+    
     return (
         <div className="print-stockIn">
             <div className="grid grid-cols-2">
@@ -27,21 +25,21 @@ const PrintStockIn = ({ stockIn }) => {
                     <div className="border border-slate-700 py-5 px-1 w-1/3 h-2/3">
                         <div className="flex gap-2 items-left italic justify-center">
                             <p>Khu vực:</p>
-                            <p>{latestStockIn.location.zone.symbol}</p>
+                            <p>{stockIn.location.zone.symbol}</p>
                         </div>
                         <div className="flex gap-2 items-left italic justify-center">
                             <p>Vị trí</p>
-                            <p>{latestStockIn.location.rack ? latestStockIn.location.rack : latestStockIn.location.pallet}</p>
+                            <p>{stockIn.location.rack ? stockIn.location.rack : stockIn.location.pallet}</p>
                         </div>
                     </div>
                 </div>
             </div>
             <div className="m-5">
                 <h1 className="font-extrabold text-[22px] text-center leading-3">PHIẾU NHẬP MUA</h1>
-                <p className="text-center text-[13px] italic font-normal py-1">số phiếu: {latestStockIn._id} - Ngày nhập: {FormatDay(latestStockIn.date)}</p>
+                <p className="text-center text-[13px] italic font-normal py-1">số phiếu: {stockIn._id} - Ngày nhập: {FormatDay(stockIn.date)}</p>
             </div>
             <div className="mb-5">
-                {latestStockIn.products.map((item, index) => (
+                {stockIn.products.map((item, index) => (
                     <div key={index} className="grid grid-cols-2 gap-3">
                         <div className="flex items-center gap-2">
                             <p className="font-semibold text-[14px]">Nhà cung cấp:</p>
@@ -69,7 +67,7 @@ const PrintStockIn = ({ stockIn }) => {
                 </div>
                 <div className="flex items-center gap-2">
                     <p className="font-semibold text-[14px]">Ghi chú:</p>
-                    <p>{latestStockIn?.note}</p>
+                    <p>{stockIn?.note}</p>
                 </div>
             </div>
 
@@ -86,14 +84,14 @@ const PrintStockIn = ({ stockIn }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {latestStockIn.products.map((item, index) => {
+                    {stockIn.products.map((item, index) => {
                         totalQuantity += item.quantity;
                         const itemTotalPrice = item.product.price * item.quantity; // Tính tổng giá trị cho mỗi sản phẩm
                         totalPrice += itemTotalPrice; // Cộng dồn vào tổng giá trị
                         return (
                             <tr key={index}>
                                 <td className="w-4 bg-white hover:bg-blue-500 text-center items-center border-2 border-l-2 border-solid border-slate-400 p-1">{index + 1}</td>
-                                <td className="bg-white hover:bg-blue-500 border-2 border-solid border-slate-400 uppercase p-1">{latestStockIn._id}</td>
+                                <td className="bg-white hover:bg-blue-500 border-2 border-solid border-slate-400 uppercase p-1">{stockIn._id}</td>
                                 <td className="bg-white hover:bg-blue-500 border-2 border-solid border-slate-400 p-1">{item?.product?.name}</td>
                                 <td className="bg-white hover:bg-blue-500 border-2 border-solid border-slate-400 p-1">Cái</td>
                                 <td className="bg-white hover:bg-blue-500 border-2 border-solid border-slate-400 p-1">{item?.quantity}</td>
@@ -123,7 +121,7 @@ const PrintStockIn = ({ stockIn }) => {
                 <div className="items-center text-center">
                     <p>Ngày...tháng...năm...</p>
                     <p className="font-semibold">Người lập</p>
-                    <p className="font-bold mt-10">{latestStockIn.employee.name}</p>
+                    <p className="font-bold mt-10">{stockIn.employee?.name}</p>
                 </div>
             </div>
         </div>

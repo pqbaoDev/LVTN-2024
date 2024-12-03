@@ -70,7 +70,7 @@ const Headers = () => {
                                 <p>Danh mục</p>
                             </div>
 
-                            <div className="absolute left-0 w-[820px] bg-white shadow-lg h-[300px] top-[50px] rounded-lg hidden opacity-0 group-hover:opacity-100 group-hover:block transition-opacity duration-300">
+                            <div className="absolute left-0 w-[820px] bg-white z-50 shadow-lg h-[300px] top-[50px] rounded-lg hidden opacity-0 group-hover:opacity-100 group-hover:block transition-opacity duration-300">
                                 <div className="grid grid-cols-3">
                                     <div className="bg-gray-100 pr-2 col-span-1">
                                         <ul className="max-h-screen bg-gray-200">
@@ -124,7 +124,7 @@ const Headers = () => {
                         )}
 
                         {/* Cart Section */}
-                        <div className="relative">
+                        <div className="relative z-50">
                             <div
                                 className="flex gap-2 items-center justify-center cursor-pointer"
                                 onMouseEnter={() => setOpenCart(true)}

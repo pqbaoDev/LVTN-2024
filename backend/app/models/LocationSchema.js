@@ -47,7 +47,7 @@ LocationSchema.pre(/^find/, function (next) {
     select: 'name symbol' 
   }).populate({
     path: 'products.product',
-    select: 'name' 
+    select: 'name size stock price' 
   });
   next();
 });

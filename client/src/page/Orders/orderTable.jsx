@@ -7,7 +7,9 @@ import { toast } from "react-toastify";
 import { FaTrash } from "react-icons/fa";
 import OrderDetailDialog from "./orderDetailDialog";
 
-const OrderTable = ({ orders }) => {
+const OrderTable = ({ orders,setRefetch }) => {
+    
+
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
     const [tab, setTab] = useState('all');
@@ -206,10 +208,12 @@ const OrderTable = ({ orders }) => {
                     mount: { x: 1, y: 0 },
                     unmount: { x: 0.9, y: -100 }
                 }}
+                setRefetch={setRefetch}
             />
             <OrderDetailDialog
                 orderId={selectedIds}
                 open={openDetailDialog}
+                setRefetch={setRefetch}
                 handleClose={handleCloseDetail}
                 size='lg'
                 position='center'

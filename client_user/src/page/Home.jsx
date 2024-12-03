@@ -14,11 +14,42 @@ import img5 from "../assets/images/img5.jpg";
 import img6 from "../assets/images/img6.jpg";
 import img7 from "../assets/images/img7.jpg";
 import img8 from "../assets/images/img8.jpg";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { authContext } from "../context/AuthContext";
+import ViewedCard from "../components/Products/ViewedCard";
+import ViewedProductService from "../services/viewedproduct.service";
+import { toast } from "react-toastify";
 
 const Home = () => {
+    const {user} = useContext(authContext);
+    const userId = user? user._id :null;
+
+    const [refetch, setRefetch] = useState(false); 
     const { data: categories } = useFetchData(`${BASE_URL}/category`);
+    const { data: viewed,loading,refetch: refetchData  } = useFetchData(`${BASE_URL}/product/viewed`,refetch);
     const [tab, setTab] = useState("sales");
+    useEffect(() => {
+        if (!loading && refetch) {
+            refetchData();
+            setRefetch(false);  
+        }
+    }, [loading, refetch, refetchData]);
+    const handleDelete = async(event)=>{
+        event.preventDefault();
+        try {
+            const viewedProductRes = await ViewedProductService.deleteAllViewedProduct(userId);
+            if (!viewedProductRes.success) {
+                throw new Error('Không thể xóa sản phẩm trong danh sách đã xem');
+            }
+           
+            setRefetch(true)
+            
+        } catch (error) {
+            toast.error(error.message);
+        }
+
+    }
+
     
 
     return (
@@ -40,16 +71,38 @@ const Home = () => {
                         <p className="text-center">Tất cả danh mục</p>
                     </div>
                 </div>
+                    {
+                        viewed?.products?.length > 0 && (
+                            <div className="mt-5 bg-white rounded-md p-5">
+                                <div className=" cursor-pointer flex justify-between items-center" onClick={handleDelete}>
+                                <h2 className="text-[20px]  leading-6 font-semibold mb-5">Sản phẩm đã xem</h2>
+                                <span className="text-slate-400 ">Xóa lịch sử</span>
+
+                                </div>
+                                <div className="flex justify-start items-center gap-2">
+                            {viewed.products.map (pro =>(
+                                <div key={pro._id}>
+                                    <ViewedCard products={pro.product}  setRefetch={setRefetch} />
+
+                                </div>
+                            ))}
+                            
+                            </div>
+                            </div>
+                            
+                        )
+                    }
+                
                 <div className="mt-5">
                     <h2 className="text-[20px]  leading-6 font-semibold mb-5">Hàng khuyến mãi</h2>
                     <div className=" bg-white rounded-lg py-5 px-8">
-                        <ProductList />
+                        <ProductList filter="sale" />
                     </div>
                 </div>
                 <div className="mt-5">
                     <div className=" bg-white rounded-lg py-5 px-8">
                     <h2 className="text-[20px]  leading-6 font-semibold mb-5">Gợi ý dành cho bạn</h2>
-                        <ProductList />
+                        <ProductList filter="forU"  />
                     </div>
                 </div>
                 <div className="mt-5">

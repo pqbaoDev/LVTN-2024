@@ -1,15 +1,11 @@
 /* eslint-disable react/prop-types */
-import {
-    Dialog,
-    DialogHeader,
-    DialogBody,
-    DialogFooter
-} from "@material-tailwind/react";
-import closeIcon from "../../assets/images/close.png";
+
 import { BASE_URL,token } from "../../../config";
 import { toast } from "react-toastify";
+import Quenstion from "../../assets/images/quetion.jpg";
 
-const OrderDeleteDialog = ({open,orderIds,handleClose}) => {
+
+const OrderDeleteDialog = ({open,orderIds,handleClose,setRefetch}) => {
     const handleDelete = async e =>{
         e.preventDefault();
         try {
@@ -24,6 +20,7 @@ const OrderDeleteDialog = ({open,orderIds,handleClose}) => {
             })
             const result = await res.json();
             handleClose();
+            setRefetch(true)
             toast.success(result.message);
             if(!res.ok){
                 throw  Error(result.message)
@@ -33,41 +30,57 @@ const OrderDeleteDialog = ({open,orderIds,handleClose}) => {
             
         }
     }
+    const stopPropagation = (e) => {
+        e.stopPropagation();
+      };
     return (
-        <Dialog
-            open = {open}
-            handler={handleClose}
-            animate={{
-                mount: { x: 1, y: 0 },
-                unmount: { x: 0.9, y: -100 }
-            }}
-            className="mx-auto max-w-lg h-1/3 border border-gray-300 shadow-2xl bg-white"
-        
-        >
-           <DialogHeader className="  text-white justify-center text-[16px] rounded-t-lg bg-blue-400">
-          <span>
+        <>
+        {open ?(
+           <div
+           className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
+           onClick={handleClose} // Đóng modal khi click ra ngoài
+         >
+          <div
+              className="relative w-1/4 my-6 mx-auto max-w-3xl"
+              onClick={stopPropagation} // Ngăn chặn đóng modal khi click vào chính modal
+            >
+                          <div className="border-2 border-slate-500 rounded-lg shadow-2xl relative flex flex-col w-full bg-white outline-none focus:outline-none">
   
-              Xóa tài khoản khách hàng
-          </span>
-          <div className=" absolute top-2 right-2">
-                          <img src={closeIcon} onClick={handleClose} className='w-5 h-5' alt="" />
-                          
-                      </div>
-        </DialogHeader>
-        <DialogBody className="p-4">
-              <div>
-                  <p>Bạn có chắc là muốn xóa các đơn hàng không!</p>
-              </div>
-            
-        </DialogBody>
-        <DialogFooter className="bg-gray-100 justify-end">
-          <div className="mt-7 mr-3">
-              <button type="submit" onClick={handleDelete} className="bg-red-500 text-white text-[18px] leading-[30px] w-full py-3 px-4 rounded-lg">Xóa</button>
+                          <div className="flex items-start justify-between  rounded-t">
+                  <p className="text-[16px] p-2">Thông báo</p>
+                  <button
+                    className="p-2 ml-auto  border-0 rounded-r-lg rounded-b-none hover:bg-red-500 hover:text-white text-black  float-right text-lg leading-none font-semibold outline-none focus:outline-none"
+                    onClick={handleClose}
+                  >
+                    <span className="mx-auto">x</span>
+                  </button>
+                </div>
+                <div className="relative p-3 flex">
+                  <img src={Quenstion} className="w-12 h-12" alt="" />
+                  <p className="my-4 text-blueGray-500 text-lg leading-relaxed">
+                    Bạn có muốn xóa ?
+                  </p>
+                </div>
+                <div className="flex items-center justify-end p-3 bg-gray-200 rounded-b-lg">
+                  <button
+                    className="bg-gray-50 text-black active:bg-red-600 font-bold text-sm px-6 py-1 rounded w border-gray-200 border-2 hover:border-blue-300 hover:bg-blue-200 outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={handleDelete}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    className="bg-gray-50 text-black font-bold text-sm px-6 py-1 rounded border-gray-200 border-2 hover:border-blue-300 hover:bg-blue-200 outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={handleClose}
+                  >
+                    No
+                  </button>
+                </div>
           </div>
-          
-          
-        </DialogFooter>
-        </Dialog>
+          </div>
+        </div>):null}
+      </>
     );
 }
 

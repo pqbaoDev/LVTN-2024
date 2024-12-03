@@ -1,5 +1,6 @@
 import Login from "../page/Login";
-import Products from "../page/products";
+import Products from "../page/products/products";
+import ProductDetail from "../page/products/ProductDetail";
 import Register from "../page/Register";
 import Home from "../page/Home";
 import Cart from "../page/Cart";
@@ -22,6 +23,7 @@ const Routers = () => {
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
         <Route path="/product" element={<Products/>} />
+        <Route path="/product/detail" element={<ProductDetail/>} />
         <Route path="/users/profile/me" element={<Account/>} />
         <Route path="/voucher" element={<Vouchers/>} />
         </Routes>

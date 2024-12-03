@@ -1,5 +1,4 @@
 import { FaBook, FaMoneyBill, FaRegEye, FaShoppingCart } from "react-icons/fa";
-import Header from "../../components/Header/Header";
 import useFetchData from "../../Hook/userFecthData";
 import { BASE_URL } from "../../../config";
 import OrderTable from "../../components/Dasboard/order/orderTable";
@@ -23,7 +22,7 @@ const Dashboard = () => {
 
     return (
         <div>
-            <Header />
+            
             <div className="grid lg:grid-cols-4 gap-5 sm:grid-cols-2 mx-5 mt-5">
                 <div className="h-[120px] bg-green-800 flex items-center justify-center gap-5">
                     <div>

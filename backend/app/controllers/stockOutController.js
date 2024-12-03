@@ -1,6 +1,7 @@
 const StockOutSModel = require("../models/StockOutSchema");
 const ProductModel = require("../models/ProductSchema");
 const LocationModel = require("../models/LocationSchema");
+const ZoneModel = require("../models/zoneSchema");
 const moment = require('moment');
 
 const createStockOut = async (req, res) => {
@@ -114,5 +115,73 @@ const getStockOutByIdLocation = async (req, res) => {
         res.status(500).json({ success: false, message: "Lỗi server" });
     }
 };
+const getStockOutByDateRange = async (req, res) => {
+    try {
+        const id = req.params.id; // Lấy locationId từ params của URL
+        
+        const { startDate, endDate, zone, query } = req.query; // Lấy các điều kiện từ query parameters
 
-module.exports = { createStockOut, getStockOut,getStockOutByIdLocation };
+        let queryObject = {};
+
+        // Điều kiện locationId
+        if (id) {
+            queryObject.location = id;
+        }
+
+        // Điều kiện thời gian (startDate và endDate)
+        if (startDate || endDate) {
+            const start = startDate ? new Date(startDate) : new Date('1970-01-01');
+            const end = endDate ? new Date(endDate) : new Date();
+
+            if (start > end) {
+                return res.status(400).json({ message: "Thời gian không phù hợp." });
+            }
+
+            queryObject.createdAt = { $gte: start, $lte: end };
+        }
+
+        // Điều kiện zone
+        if (zone) {
+            const zones = await ZoneModel.find({
+                name: { $regex: zone, $options: 'i' }
+            });
+
+            if (zones.length > 0) {
+                const zoneIds = zones.map(z => z._id);
+                console.log(zoneIds)
+                const locations = await LocationModel.find({ zone: { $in: zoneIds } });
+                const locationIds = locations.map(location => location._id);
+
+                if (locationIds.length > 0) {
+                    queryObject.location = { $in: locationIds };
+                } else {
+                    return res.status(404).json({ message: "Không tìm thấy khu vực nào phù hợp." });
+                }
+            } else {
+                return res.status(404).json({ message: "Không tìm thấy khu vực nào phù hợp." });
+            }
+        }
+
+        // Điều kiện query (tìm kiếm theo từ khóa)
+        if (query) {
+            queryObject._id = { $regex: query, $options: 'i' };
+        }
+
+        // Truy vấn các phiếu nhập theo queryObject
+        const stockIns = await StockOutSModel.find(queryObject);
+
+        // Kiểm tra kết quả
+        if (stockIns.length === 0) {
+            return res.status(404).json({ message: "Không tìm thấy phiếu nhập nào phù hợp." });
+        }
+
+        // Trả về danh sách phiếu nhập
+        res.status(200).json({ success: true, data: stockIns });
+
+    } catch (error) {
+        console.error("Lỗi server: ", error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { createStockOut, getStockOut,getStockOutByIdLocation,getStockOutByDateRange };

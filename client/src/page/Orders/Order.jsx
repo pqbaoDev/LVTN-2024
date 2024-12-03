@@ -10,7 +10,9 @@ import { FaPlus } from "react-icons/fa";
 import OrderAddDialog from "./orderAddDialog";
 const Order = () => {
     const [debounceQuery,setDebounceQuery] = useState('');
-    const {data:order,loading,error}= useFetchData(`${BASE_URL}/order?query=${debounceQuery}`)
+    const [refetch, setRefetch] = useState(false); 
+
+    const {data:order,loading,error,refetch:refetchData}= useFetchData(`${BASE_URL}/order?query=${debounceQuery}`,refetch)
     const [query,setQuery] = useState(' ');
     const [openDialog,setOpenDialog] = useState(false);
 
@@ -28,6 +30,12 @@ const Order = () => {
         },700);
         return ()=>clearTimeout(timeOut);
     },[query])
+    useEffect(() => {
+        if (!loading && refetch) {
+            refetchData();
+            setRefetch(false);  // Reset refetch state
+        }
+    }, [loading, refetch, refetchData]);
     return (
         <>
             <section className="py-0 px-5 pt-4 flex justify-between">
@@ -76,7 +84,7 @@ const Order = () => {
                     {!loading && !error && (
                         <div>
                             {order.length >= 0 ? (
-                                <OrderTable orders={order} />
+                                <OrderTable orders={order} setRefetch={setRefetch} />
                             ) : (
                                 <p className="text-center text-gray-500">Không có đơn hàng nào được tìm thấy.</p>
                             )}
@@ -93,6 +101,7 @@ const Order = () => {
                     mount: { x: 1, y: 0 },
                     unmount: { x: 0.9, y: -100 }
                 }}
+                setRefetch={setRefetch}
             />
             
         </>

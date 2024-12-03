@@ -19,12 +19,13 @@ const ManufactureSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        validate: {
-            validator: function (v) {
-                return /\d{10}/.test(v); // Kiểm tra xem số điện thoại có hợp lệ không (10-11 số)
-            },
-            message: props => `${props.value} không phải là số điện thoại hợp lệ!`
-        }
+        // validate: {
+        //     validator: function (v) {
+        //         return /\d{8}/.test(v); 
+        //     },
+        //     message: props => `${props.value} không phải là số điện thoại hợp lệ!`
+        // }
+        required: [true, 'SĐT là bắt buộc'],
     },
     email: {
         type: String,

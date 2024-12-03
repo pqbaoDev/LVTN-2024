@@ -56,9 +56,15 @@ const Cart = () => {
         if (selectedProducts.length === cartProducts.length) {
             setSelectedProducts([]);
         } else {
-            setSelectedProducts(cartProducts.map((item) => item.product._id));
+            // Chọn tất cả sản phẩm có stock > 0 và alt !== false
+            setSelectedProducts(
+                cartProducts
+                    .filter((item) => item.product.alt !== false && item.product.stock > 0)
+                    .map((item) => item.product._id)
+            );
         }
     };
+    
 
     const handleQuantityChange = async (index, change) => {
         const updatedProducts = [...cartProducts];
@@ -214,72 +220,98 @@ const Cart = () => {
                                 </tr> */}
                             </thead>
                             <tbody className="text-[16px] bg-white rounded-sm">
-                                {cartProducts.map((item, index) => (
-                                    <tr key={item.product._id} className="border-t">
-                                        <td className="p-4">
-                                            <input
-                                                type="checkbox"
-                                                onChange={() => handleSelectProduct(item.product._id)}
-                                                checked={selectedProducts.includes(item.product._id)}
-                                            />
-                                        </td>
-                                        <td className="p-4 flex items-center gap-4">
-                                            <img
-                                                src={item.product.photo}
-                                                alt={item.product.name}
-                                                className="w-[50px] h-[50px] object-cover rounded"
-                                            />
-                                            <span className="truncate w-[200px]">{item.product.name}</span>
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            {item.product.discount > 0 ? (
-                                                <div>
-                                                    {/* Giá cũ và giá giảm */}
-                                                    <span className="line-through text-gray-500">
-                                                        <sup>đ</sup>{FormatPrice(item.product.price)}
-                                                    </span>
-                                                    <span className="ml-2 text-red-600">
-                                                        <sup>đ</sup>{FormatPrice(item.product.price * (1 - item.product.discount / 100))}
-                                                    </span>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                    <sup>đ</sup>{FormatPrice(item.product.price)}
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="flex items-center justify-center text-center">
-                                            <button
-                                                className="px-2 py-1 border border-gray-300 rounded-md"
-                                                onClick={() => handleQuantityChange(index, -1)}
-                                            >
-                                                -
-                                            </button>
-                                            <span className="m-2">{item.quantity}</span>
-                                            <button
-                                                className="px-2 py-1 border border-gray-300 rounded-md"
-                                                onClick={() => handleQuantityChange(index, 1)}
-                                            >
-                                                +
-                                            </button>
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            <span >
-                                                <sup>đ</sup>
-                                                {FormatPrice((item.product.price * (1 - (item.product.discount / 100))) * item.quantity)}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            <button
-                                                className="text-red-500 hover:text-red-700"
-                                                onClick={() => handleRemoveProduct(item.product._id)}
-                                            >
-                                                Xóa
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
+    {cartProducts.map((item, index) => {
+        // Kiểm tra nếu alt là false hoặc stock = 0
+        const isUnavailable = item.product.alt === false || item.product.stock === 0;
+
+        return (
+            <>
+                <tr key={item.product._id} className="border-t">
+                <td className="p-4">
+                    {/* Không cho phép tích chọn nếu sản phẩm không khả dụng */}
+                    <input
+                        type="checkbox"
+                        onChange={() => handleSelectProduct(item.product._id)}
+                        checked={selectedProducts.includes(item.product._id)}
+                        disabled={isUnavailable} // Vô hiệu hóa checkbox nếu sản phẩm không khả dụng
+                        className={isUnavailable ? "text-gray-400" : ""} // Thêm màu xám cho checkbox của sản phẩm không khả dụng
+                    />
+                </td>
+                <td className={`p-4 flex items-center justify-start ${isUnavailable ? 'text-gray-400' : ''}`}>
+                   
+                        <img
+                            src={item.product.avatar}
+                            className={`w-[50px] h-[50px] object-cover rounded ${isUnavailable ? 'filter grayscale' : ''}`} // Thêm filter grayscale khi sản phẩm không khả dụng
+                            alt={item.product.name}
+                        />
+                   
+                    <span className="truncate">{item.product.name}</span>
+                </td>
+                <td className={`p-4 text-center ${isUnavailable ? 'text-gray-400' : ''}`}>
+                    {item.product.discount > 0 ? (
+                        <div>
+                            <span className="line-through text-gray-500">
+                                <sup>đ</sup>{FormatPrice(item.product.price)}
+                            </span>
+                            <span className="ml-2 text-red-600">
+                                <sup>đ</sup>{FormatPrice(item.product.price * (1 - item.product.discount / 100))}
+                            </span>
+                        </div>
+                    ) : (
+                        <div>
+                            <sup>đ</sup>{FormatPrice(item.product.price)}
+                        </div>
+                    )}
+                </td>
+                <td className={`p-4 text-center ${isUnavailable ? 'text-gray-400' : ''}`}>
+                    <div className="flex items-center justify-center">
+                        <button
+                            className="px-2 py-1 border border-gray-300 rounded-md"
+                            onClick={() => handleQuantityChange(index, -1)}
+                            disabled={item.quantity <= 1 || isUnavailable}  // Không cho phép thay đổi số lượng nếu sản phẩm không khả dụng
+                        >
+                            -
+                        </button>
+                        <span className="m-2">{item.quantity}</span>
+                        <button
+                            className="px-2 py-1 border border-gray-300 rounded-md"
+                            onClick={() => handleQuantityChange(index, 1)}
+                            disabled={isUnavailable}  // Không cho phép tăng số lượng nếu sản phẩm không khả dụng
+                        >
+                            +
+                        </button>
+                    </div>
+                </td>
+                <td className={`p-4 text-center ${isUnavailable ? 'text-gray-400' : ''}`}>
+                    <span>
+                        <sup>đ</sup>
+                        {FormatPrice((item.product.price * (1 - (item.product.discount / 100))) * item.quantity)}
+                    </span>
+                </td>
+                <td className="p-4 text-center">
+                    <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => handleRemoveProduct(item.product._id)}
+                    >
+                        Xóa
+                    </button>
+                </td>
+            </tr>
+
+                {/* Dòng thông báo nếu sản phẩm không khả dụng */}
+                {isUnavailable && (
+                    <tr>
+                        <td colSpan="6" className="p-4 text-center text-red-500 bg-yellow-100">
+                            Sản phẩm không khả dụng (Hết hàng hoặc không được bán)
+                        </td>
+                    </tr>
+                )}
+            </>
+        );
+    })}
+</tbody>
+
+
                         </table>
                     </div>
 

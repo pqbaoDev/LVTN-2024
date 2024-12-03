@@ -81,7 +81,7 @@ const Manufacture = () => {
         <div>
              <div className="text-left p-5 w-1/3 flex gap-2 cursor-pointer">
                 <img src={whouse} className="w-6 h-6" alt="" />
-                <Link to={`/warehouse`} className="heading w-[150px]">Quản lý Kho</Link>
+                <Link to={`/warehouse`} className="heading ">Quản Lý Nhà Cung Cấp</Link>
                 
             </div>
             {tab === 'add' && <AddManufacture />}
@@ -125,7 +125,7 @@ const Manufacture = () => {
                     </div>
                     <div className="absolute left-1/4 -top-4">
                     <button
-                        className="border border-solid rounded-full text-white text-[12px] bg-black text-center p-1"
+                        className="border border-solid border-primaryColor text-primaryColor rounded-full  text-[12px] bg-black text-center p-1"
                         onClick={()=>setTab('add')}
                     >
                         <FaPlus />
@@ -145,7 +145,7 @@ const Manufacture = () => {
                                         />
                                     </th>
                                     <th scope="col">STT</th>
-                                    <th scope="col">Tên</th>
+                                    <th colSpan={2}>Nhà cung cấp</th>
                                     <th scope="col">SĐT</th>
                                     <th scope="col">Địa chỉ</th>
                                     <th scope="col">Thao tác</th>
@@ -163,6 +163,10 @@ const Manufacture = () => {
                                             />
                                         </td>
                                         <td className="pr-3 py-4">{index + 1}</td>
+                                        <td className="pr-3 py-4 max-w-[150px]">
+                                            <img src={item.photo} alt="" />
+                                            
+                                        </td>
                                         <td className="pr-3 py-4">{item.name}</td>
                                         <td className="pr-3 py-4">{item.phone}</td>
                                         <td className="pr-3 py-4">{item.address}</td>

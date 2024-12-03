@@ -7,13 +7,10 @@
 import useFetchData from "../../Hook/userFecthData";
 import { BASE_URL } from "../../../config";
 import { FaSearch, FaTrash } from "react-icons/fa";
-import filterIcon from "../../assets/images/filterIcon.png";
 import { useState, useEffect } from "react";
 import { FaPlusCircle } from "react-icons/fa";
-import ProductAddDialog from "./ProductAddDialog";
 import CategoryAddDialog from "./categoryAddDialog";
 import ManuFactureAddDialog from "./manuFactureAddDialog";
-import ProductDetail from "./productDetail";
 import ProductDeleteDialog from "./productDeleteDialog";
 import { toast } from "react-toastify";
 import { BiSort } from "react-icons/bi";
@@ -29,10 +26,9 @@ const Product = () => {
   const { user } = useContext(authContext);
 
     const [query, setQuery] = useState('');
-    const [openProductAdd, setOpenProductAdd] = useState(false);
+    const [debounceQuery, setDebounceQuery] = useState('');
     const [openCategoryAdd, setOpenCategoryAdd] = useState(false);
     const [openManuFactureAdd, setOpenManuFactureAdd] = useState(false);
-    const [debounceQuery, setDebounceQuery] = useState('');
     const [debounceCategory, setDebounceCategory] = useState('');
     const [debounceManuFacture, setDebounceManuFacture] = useState('');
 
@@ -47,10 +43,7 @@ const Product = () => {
     
   
 
-    // Handle dialog open/close
-    // const handleOpenProductAdd = () => setOpenProductAdd(true);
-    const handleCloseProductAdd = () => setOpenProductAdd(false);
-
+    
     const handleOpenCategoryAdd = () => setOpenCategoryAdd(true);
     const handleCloseCategoryAdd = () => setOpenCategoryAdd(false);
     const handleOpenManuFacture = () => setOpenManuFactureAdd(true);
@@ -105,8 +98,8 @@ const Product = () => {
 
     // Lặp qua từng khu vực trong location
     Object.values(location).forEach(area => {
-        area.products?.forEach(prod => {
-            const foundProducts = currentItems?.filter(pro => pro._id === prod.product._id);
+        area?.products?.forEach(prod => {
+            const foundProducts = currentItems?.filter(pro => pro?._id === prod?.product?._id);
 
             foundProducts.forEach(foundProduct => {
                 // Tạo một đối tượng cho mỗi sản phẩm với thông tin vị trí
@@ -213,7 +206,7 @@ const Product = () => {
     
     const [loading, setLoading] = useState(false);
     const [refetch, setRefetch] = useState(false);
-    const { data: carts, refetch: refetchData } = user._id ? useFetchData(`${BASE_URL}/cart/${user._id}`, refetch) : { data: null };
+    const { data: carts, refetch: refetchData } = user?._id ? useFetchData(`${BASE_URL}/cart/${user._id}`, refetch) : { data: null };
 
     useEffect(() => {
         if (!loading && refetch) {
@@ -476,16 +469,7 @@ const Product = () => {
                 </div>
 
             </div>
-            <ProductAddDialog
-                open={openProductAdd}
-                handleClose={handleCloseProductAdd}
-                size="lg"
-                position="center"
-                animate={{
-                    mount: { scale: 1, y: 0 },
-                    unmount: { scale: 0.9, y: -100 },
-                }}
-            />
+            
             <CategoryAddDialog
                 open={openCategoryAdd}
                 handleClose={handleCloseCategoryAdd}

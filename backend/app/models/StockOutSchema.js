@@ -58,7 +58,7 @@ StockOutSchema.pre(/^find/, function(next) {
         select: 'name employeeId phone' // Hạn chế thông tin employeeGive nếu cần
     }).populate({
         path: 'products.product',
-        select: 'name photo manuFacture price'
+        select: 'name photo manuFacture price size avatar'
     }).populate({
         path: 'location', // Sửa lỗi để populate đúng location
         select: 'zone rack pallet type level products'

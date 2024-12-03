@@ -69,7 +69,7 @@ OrderSchema.pre(/^find/, function(next) {
         select: 'name address phone'
     }).populate({
         path:'products.product',
-        select:'name photo manuFacture price discount type'
+        select:'name photo manuFacture price discount size color'
     }).populate('voucher'); // Thay đổi đây để populate đúng
     next();
 });
